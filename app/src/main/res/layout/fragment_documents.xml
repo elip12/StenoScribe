@@ -5,15 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".MainActivity"
-    tools:showIn="@layout/activity_main"
     android:orientation="vertical"
     android:background="@drawable/back">
     <TextView
+        android:id="@+id/text_documents"
         android:layout_marginTop="0dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="\tTitle\n\n\t06/07/19"
+        android:hint="\tDocument 1\n\n\t10:15am"
         android:textColorHint="@color/colorGray"
         android:minLines="3"/>
     <View
