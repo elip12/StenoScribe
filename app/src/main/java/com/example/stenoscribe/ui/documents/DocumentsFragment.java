@@ -13,6 +13,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.stenoscribe.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class DocumentsFragment extends Fragment {
 
@@ -23,13 +25,24 @@ public class DocumentsFragment extends Fragment {
         documentsViewModel =
                 ViewModelProviders.of(this).get(DocumentsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_documents, container, false);
-        final TextView textView = root.findViewById(R.id.text_documents);
-        documentsViewModel.getText().observe(this, new Observer<String>() {
+//        final TextView textView = root.findViewById(R.id.text_documents);
+//        documentsViewModel.getText().observe(this, new Observer<String>() {
+//            @Override
+//            public void onChanged(@Nullable String s) {
+//                textView.setText(s);
+//            }
+//        });
+
+        FloatingActionButton fab = root.findViewById(R.id.fab_documents);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
+            public void onClick(View view) {
+                Snackbar.make(view, "This lets you upload a new document", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
+
+
         return root;
     }
 }

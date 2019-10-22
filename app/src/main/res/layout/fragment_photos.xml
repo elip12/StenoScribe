@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,13 +12,24 @@
         android:layout_marginTop="0dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="\tPhoto 1\n\n\t10:15am"
+        android:hint="\tDocument 1\n\n\t10:15am"
         android:textColorHint="@color/colorGray"
         android:minLines="3"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/colorGray" />
+        android:background="@color/colorGray"
+        android:layout_below="@id/text_photos"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_photos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/bottom_navigation_margin"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="@dimen/fab_margin"
+        app:srcCompat="@drawable/ic_add_black_24dp" />
 
 
-</LinearLayout>
+</RelativeLayout>
