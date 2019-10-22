@@ -55,4 +55,27 @@ meetings so it’s easy to find the information you need later.
             ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
 
+leave recording to end, might need to have background thread
+1/2 of app done by presentation 3 weeks from now
+goals for next meeting (2 weeks)
+    - db complete
+    - all static layout elements
+    - all transistions
+    - adding a meeting adds a meeting
+    - reading a meeting reads a meeting
+    - prototype recording feature
+
+## Quick Git tutorial
+#### Methodology
+1. checkout a new branch from master: `git checkout master; git checkout -b my-new-branch`
+2. every time you start working, merge master into your branch: `git pull origin master`
+3. while working, commit changes often: `git add firstchangedfile, secondchangedfile ... lastchangedfile; git commit -m "short description of changes"`
+4. push changes when done working: `git push origin my-new-branch`
+5. when you have something stable that can be merged with master: `git checkout master; git merge my-new-branch; git push origin master`
+
+Coordinate with everyone to make sure you are not working on the same parts of the same file at the same time,
+to avoid merge conflicts.
+
+If you are unsure that your code works properly, feel free to make a pull request on github
+instead of simply merging with master. That way, we can all review it.
 
