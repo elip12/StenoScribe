@@ -11,7 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import 	android.content.Intent;
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "This will start the MeetingDetails activity", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(view.getContext(), MeetingDetails.class);
+                view.getContext().startActivity(intent);
             }
         });
     }
