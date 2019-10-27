@@ -1,20 +1,36 @@
 package com.example.stenoscribe.db;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 @Entity
 public class Meeting {
 
-    @PrimaryKey
+    public Meeting(int uid) {
+        this.uid = uid;
+    }
+
+    public String getDate() {
+        LocalDateTime date = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy hh:mma");
+        return date.format(formatter);
+    }
+
+    @PrimaryKey()
+    @NonNull
     public int uid;
 
     @ColumnInfo(name = "title")
-    public String title;
+    @NonNull
+    public String title = "New Meeting";
 
     @ColumnInfo(name = "date")
-    public String date;
+    @NonNull
+    public String date = this.getDate();
 
     @ColumnInfo(name = "description")
     public String description;

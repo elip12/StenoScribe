@@ -9,17 +9,11 @@
     tools:showIn="@layout/activity_main"
     android:orientation="vertical"
     android:background="@drawable/back">
-    <TextView
-        android:layout_marginTop="0dp"
+    <ListView
+        android:id="@+id/meetings_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="\tTitle\n\n\t06/07/19"
-        android:textColorHint="@color/colorGray"
-        android:minLines="3"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGray" />
+        android:layout_height="wrap_content"/>
+
 
 
 </LinearLayout>
