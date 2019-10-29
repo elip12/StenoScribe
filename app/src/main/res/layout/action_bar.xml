@@ -10,6 +10,8 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:textColor="@color/colorAccent"
-        android:maxLines="1"
+        android:background="@color/colorDarkGray"
+        android:minWidth="250dp"
+        android:inputType="text"
         />
 </LinearLayout>

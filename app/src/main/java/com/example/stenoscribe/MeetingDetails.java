@@ -1,5 +1,6 @@
 package com.example.stenoscribe;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -59,23 +61,17 @@ public class MeetingDetails extends AppCompatActivity {
         // you can create listener over the EditText
         final EditText actionBarText = findViewById(R.id.action_bar_text);
         actionBarText.clearFocus();
-        actionBarText.addTextChangedListener(new TextWatcher() {
+        actionBarText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int st, int c, int a) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String newTitle = s.toString();
-                if (newTitle.endsWith("\n")) {
-                    newTitle = newTitle.replace(newTitle.substring(newTitle.length() - 1), "");
-                    actionBarText.setText(newTitle);
-                    actionBarText.clearFocus();
-                    // db store
-                    Log.i("MEETINGDETAILS", newTitle);
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    InputMethodManager imm = (InputMethodManager) MeetingDetails.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    v.clearFocus();
+                    // write v.getText to db
+                    return true;
                 }
+                return false;
             }
         });
 

@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.saved_meetings);
 
-        //getApplicationContext().deleteDatabase("stenoscribe");
+        getApplicationContext().deleteDatabase("stenoscribe");
 
         final AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
 
