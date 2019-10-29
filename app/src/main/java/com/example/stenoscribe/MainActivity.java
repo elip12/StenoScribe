@@ -2,7 +2,6 @@ package com.example.stenoscribe;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -14,9 +13,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-
 import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.Meeting;
+import com.example.stenoscribe.db.MeetingAccessor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +24,13 @@ import androidx.appcompat.widget.Toolbar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private AppDatabase db;
+    private MeetingAccessor accessor;
+    private int lastMeetingUID = 0;
+    private List<Meeting> meetings;
+    private FloatingActionButton fab;
+    private MeetingAdapter adapter;
+    private ListView listView;
 
     public class MeetingAdapter extends ArrayAdapter<Meeting> {
         private List<Meeting> items;
@@ -36,9 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View v, ViewGroup parent) {
-            Meeting item;
+            final Meeting item;
             final TextView title;
             final TextView date;
+
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.meetings_list_elem, null);
@@ -54,39 +61,57 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int lastMeetingUID;
+    public void setToolbarTitle() {
+        final Toolbar toolbar;
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.saved_meetings);
+    }
+
+    public void configureFab() {
+        this.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Meeting meeting;
+                final Intent intent;
+
+                meeting = new Meeting(MainActivity.this.lastMeetingUID + 1);
+                intent = new Intent(view.getContext(), MeetingDetails.class);
+                intent.putExtra("uid", meeting.uid);
+                accessor.insertMeeting(meeting);
+                view.getContext().startActivity(intent);
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.saved_meetings);
+        this.setToolbarTitle();
 
-        getApplicationContext().deleteDatabase("stenoscribe");
+        /* deletes database; necessary for development when schema changes often */
+        //getApplicationContext().deleteDatabase("stenoscribe");
 
-        final AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
+        this.db = AppDatabase.getDatabase(getApplicationContext());
+        this.accessor = new MeetingAccessor(this.db);
+        this.fab = findViewById(R.id.fab);
+        this.configureFab();
+    }
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+    public void configureListView() {
+        this.listView.setAdapter(this.adapter);
+        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View view) {
-                final Meeting meeting = new Meeting(lastMeetingUID + 1);
-                Log.i("MAIN_DB", "" + meeting.uid);
-                Log.i("MAIN_DB", meeting.title);
-                Log.i("MAIN_DB", meeting.date);
+            public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
+                final Meeting item;
+                final Intent intent;
 
-                Intent intent = new Intent(view.getContext(), MeetingDetails.class);
-                intent.putExtra("uid", meeting.uid);
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        db.meetingDao().insertMeeting(meeting);
-                    }
-                });
-                thread.start();
-                view.getContext().startActivity(intent);
+                item = (Meeting) adapter.getItemAtPosition(position);
+                intent = new Intent(getApplicationContext(), MeetingDetails.class);
+                intent.putExtra("uid", item.uid);
+                startActivity(intent);
             }
         });
     }
@@ -94,37 +119,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        final AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final List<Meeting> meetings = db.meetingDao().listMeetings();
-                lastMeetingUID = meetings.size();
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        MeetingAdapter adapter = new MeetingAdapter(MainActivity.this, R.layout.meetings_list_elem, meetings);
-                        ListView listView = findViewById(R.id.meetings_list);
-                        listView.setAdapter(adapter);
-                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-                            @Override
-                            public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
-                                Meeting item;
-                                Intent intent;
-
-                                item = (Meeting) adapter.getItemAtPosition(position);
-                                intent = new Intent(getApplicationContext(), MeetingDetails.class);
-                                intent.putExtra("uid", item.uid);
-                                startActivity(intent);
-                            }
-                        });
-                    }
-                });
-            }
-        });
-        thread.start();
-
-
+        if (this.db == null) {
+            this.db = AppDatabase.getDatabase(getApplicationContext());
+        }
+        if (this.accessor == null) {
+            this.accessor = new MeetingAccessor(this.db);
+        }
+        this.meetings = accessor.listMeetings();
+        if (this.meetings.size() > 0)
+            this.lastMeetingUID = this.meetings.get(0).uid;
+        this.adapter = new MeetingAdapter(MainActivity.this, R.layout.meetings_list_elem, meetings);
+        this.listView = findViewById(R.id.meetings_list);
+        this.configureListView();
     }
 
     @Override

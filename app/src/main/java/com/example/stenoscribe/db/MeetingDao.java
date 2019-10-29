@@ -10,7 +10,7 @@ import java.util.List;
 @Dao
 public interface MeetingDao {
     // Meeting methods
-    @Query("SELECT * FROM meeting")
+    @Query("SELECT * FROM meeting ORDER BY uid DESC")
     List<Meeting> listMeetings();
 
     @Query("SELECT * FROM meeting WHERE uid IS :uid LIMIT 1")

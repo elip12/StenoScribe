@@ -2,17 +2,57 @@ package com.example.stenoscribe.db;
 
 import android.util.Log;
 
+import java.util.List;
+
+/*
+Add return values if insert, read, or update fails
+ */
+
 public class MeetingAccessor {
     private final AppDatabase db;
+    private final String tag = "DB_MEETINGACCESSOR";
 
     public MeetingAccessor(AppDatabase db){
         this.db = db;
     }
 
+    private class ListerRunnable implements Runnable {
+        private AppDatabase db;
+        private List<Meeting> meetings;
+
+        public ListerRunnable(AppDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        public void run() {
+            this.meetings = this.db.meetingDao().listMeetings();
+        }
+
+        public List<Meeting> listMeetings() {
+            return this.meetings;
+        }
+    }
+
+    private class InserterRunnable implements Runnable {
+        private AppDatabase db;
+        private Meeting meeting;
+
+        public InserterRunnable(AppDatabase db, Meeting meeting) {
+            this.db = db;
+            this.meeting = meeting;
+        }
+
+        @Override
+        public void run() {
+            this.db.meetingDao().insertMeeting(this.meeting);
+        }
+    }
+
     private class ReaderRunnable implements Runnable {
-        public AppDatabase db;
-        public int uid;
-        public Meeting meeting;
+        private AppDatabase db;
+        private int uid;
+        private Meeting meeting;
 
         public ReaderRunnable(AppDatabase db, int uid) {
             this.db = db;
@@ -30,8 +70,8 @@ public class MeetingAccessor {
     }
 
     private class UpdaterRunnable implements Runnable {
-        public AppDatabase db;
-        public Meeting meeting;
+        private AppDatabase db;
+        private Meeting meeting;
 
         public UpdaterRunnable(AppDatabase db, Meeting meeting) {
             this.db = db;
@@ -44,8 +84,33 @@ public class MeetingAccessor {
         }
     }
 
-    public Meeting readMeeting(int uid) {
+    public List<Meeting> listMeetings() {
+        ListerRunnable runnable = new ListerRunnable(this.db);
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+            return runnable.listMeetings();
+        }
+        catch(Exception e) {
+            Log.e(tag, e.toString());
+            return null;
+        }
+    }
 
+    public void insertMeeting(Meeting meeting) {
+        InserterRunnable runnable = new InserterRunnable(this.db, meeting);
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+        }
+        catch(Exception e) {
+            Log.e(tag, e.toString());
+        }
+    }
+
+    public Meeting readMeeting(int uid) {
         ReaderRunnable runnable = new ReaderRunnable(this.db, uid);
         Thread thread = new Thread(runnable);
         thread.start();
@@ -54,7 +119,7 @@ public class MeetingAccessor {
             return runnable.readMeeting();
         }
         catch(Exception e) {
-            Log.e("MEETINGDETAILS_DB", e.toString());
+            Log.e(tag, e.toString());
             return null;
         }
     }
@@ -67,7 +132,7 @@ public class MeetingAccessor {
             thread.join();
         }
         catch(Exception e) {
-            Log.e("MEETINGDETAILS_DB", e.toString());
+            Log.e(tag, e.toString());
         }
     }
 }
