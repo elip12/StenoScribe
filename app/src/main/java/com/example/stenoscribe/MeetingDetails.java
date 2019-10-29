@@ -38,8 +38,9 @@ public class MeetingDetails extends AppCompatActivity {
         actionBarLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.action_bar, null);
 
         actionBar = getSupportActionBar();
-        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left_black_24dp);
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setCustomView(actionBarLayout);
 
@@ -90,9 +91,12 @@ public class MeetingDetails extends AppCompatActivity {
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(db);
         this.meeting = accessor.readMeeting(uid);
-        this.actionBarText = this.configureActionBar();
+    }
 
-        // business logic
-        actionBarText.setText(meeting.title);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.actionBarText = this.configureActionBar();
+        this.actionBarText.setText(this.meeting.title);
     }
 }
