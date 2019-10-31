@@ -9,25 +9,13 @@ transcriptions for a meeting in a single place, and organize your stored
 meetings so it’s easy to find the information you need later.
 
 ## Todo
-- controller for main activity
-    - Hannah
-- layout for bottom navigation activity
-    - Eli
-- controller for bottom navigation activity
-    - Eli
-- model for sqlite db
-    - see photo for schema (schema.jpg)
-    - rooms api for ease of access
-    - class for each table
-    - dao interface for each table
-    - single database class that extends RoomDatabase
-    - single database instance built with Room.databaseBuilder(
-        getApplicationContext(), MyDatabase.class, "my-database").build()
+*For Tuesday 11/5/19:*
 - record activity
-    - layout: Matthew
-- share activity
 - documents activity
 - photos activity
+
+*For interim presentation 11/12/19:*
+- share activity
 - model for speech-to-text
     - imagebutton for starting recording
     - RecognizerIntent with flags:
@@ -54,16 +42,6 @@ meetings so it’s easy to find the information you need later.
         - requestCode == SPEECH_CODE: 
             ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
-
-leave recording to end, might need to have background thread
-1/2 of app done by presentation 3 weeks from now
-goals for next meeting (2 weeks)
-    - db complete
-    - all static layout elements
-    - all transistions
-    - adding a meeting adds a meeting
-    - reading a meeting reads a meeting
-    - prototype recording feature
 
 ## Quick Git tutorial
 #### Methodology
