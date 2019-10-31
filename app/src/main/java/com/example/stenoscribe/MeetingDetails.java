@@ -76,11 +76,7 @@ public class MeetingDetails extends AppCompatActivity {
 
         // create bottom navigation tab view
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_recordings, R.id.navigation_photos, R.id.navigation_documents)
-                .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
         // get data from intent
