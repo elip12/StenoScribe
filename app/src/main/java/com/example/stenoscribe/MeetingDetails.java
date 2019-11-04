@@ -19,7 +19,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 public class MeetingDetails extends AppCompatActivity {
@@ -28,8 +27,13 @@ public class MeetingDetails extends AppCompatActivity {
     private MeetingAccessor accessor;
     private Meeting meeting;
     private EditText actionBarText;
+    private int uid;
 
-    // Make actionbar title editable
+    public int getUid() {
+        return this.uid;
+    }
+
+    // Make actionbar title editable, and show back button
     public EditText configureActionBar() {
         final ViewGroup actionBarLayout;
         final ActionBar actionBar;
@@ -69,7 +73,6 @@ public class MeetingDetails extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         final Intent intent;
-        final int uid;
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meeting_details);
@@ -81,7 +84,7 @@ public class MeetingDetails extends AppCompatActivity {
 
         // get data from intent
         intent = getIntent();
-        uid = intent.getIntExtra("uid", 0);
+        this.uid = intent.getIntExtra("uid", 0);
 
         // instantiate global variables
         this.db = AppDatabase.getDatabase(getApplicationContext());

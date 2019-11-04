@@ -27,9 +27,9 @@ public interface MeetingDao {
     void deleteMeeting(Meeting meeting);
 
     // File methods
-    @Query("SELECT path from file where type IS :type AND " +
+    @Query("SELECT * from file where type IS :type AND " +
             "meeting_id IS :meeting_id")
-    List<String> listPathsOfType(String type, int meeting_id);
+    List<File> listFilesOfType(String type, int meeting_id);
 
     @Insert(entity = File.class)
     void insertFile(File file);
