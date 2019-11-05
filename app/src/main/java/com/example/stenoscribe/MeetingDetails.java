@@ -3,6 +3,7 @@ package com.example.stenoscribe;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -35,11 +36,6 @@ public class MeetingDetails extends AppCompatActivity {
 
     public String getMeetingTitle() {
         return this.meeting.title;
-    }
-
-    protected void onSaveInstanceState(Bundle bundle) {
-        super.onSaveInstanceState(bundle);
-        bundle.putInt("uid", this.uid);
     }
 
     // Make actionbar title editable, and show back button
@@ -95,14 +91,11 @@ public class MeetingDetails extends AppCompatActivity {
         intent = getIntent();
         this.uid = intent.getIntExtra("uid", 0);
 
-        if(savedInstanceState != null) {
-            this.uid = savedInstanceState.getInt("uid");
-        }
-
         // instantiate global variables
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
         this.meeting = accessor.readMeeting(this.uid);
+
     }
 
     @Override

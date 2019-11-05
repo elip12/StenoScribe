@@ -140,14 +140,11 @@ public class RecordingsFragment extends Fragment {
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
-                Snackbar.make(v, "This opens a new activity showing the transcription", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
                 int uid = RecordingsFragment.this.recordings.get(position).uid;
                 String path = RecordingsFragment.this.accessor.getFilePath(uid);
                 final Intent intent = new Intent(getContext(), ReadTranscriptionActivity.class);
                 intent.putExtra("path", path);
-                intent.putExtra("meetingTitle", RecordingsFragment.this.meetingTitle);
+                intent.putExtra("meetingTitle", "Recording " + (uid + 1));
                 startActivity(intent);
             }
         });
@@ -155,7 +152,6 @@ public class RecordingsFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        this.meetingTitle = ((MeetingDetails)getActivity()).getMeetingTitle();
         this.meetingId = ((MeetingDetails)getActivity()).getUid();
 //        this.recordingsViewModel = ViewModelProviders.of(this).get(RecordingsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_recordings, container, false);
