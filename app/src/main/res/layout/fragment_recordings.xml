@@ -7,19 +7,10 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
     android:background="@drawable/back">
-    <TextView
-        android:id="@+id/text_recordings"
-        android:layout_marginTop="0dp"
+    <ListView
+        android:id="@+id/recordings_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="\tDocument 1\n\n\t10:15am"
-        android:textColorHint="@color/colorGray"
-        android:minLines="3"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGray"
-        android:layout_below="@id/text_recordings"/>
+        android:layout_height="wrap_content"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_recordings"
@@ -27,9 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/bottom_navigation_margin"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_add_black_24dp" />
+        android:layout_centerInParent="true"
+        app:srcCompat="@drawable/ic_mic_black_24dp" />
 
 
 </RelativeLayout>
