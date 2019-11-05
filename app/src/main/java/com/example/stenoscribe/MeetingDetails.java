@@ -33,6 +33,15 @@ public class MeetingDetails extends AppCompatActivity {
         return this.uid;
     }
 
+    public String getMeetingTitle() {
+        return this.meeting.title;
+    }
+
+    protected void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        bundle.putInt("uid", this.uid);
+    }
+
     // Make actionbar title editable, and show back button
     public EditText configureActionBar() {
         final ViewGroup actionBarLayout;
@@ -86,10 +95,14 @@ public class MeetingDetails extends AppCompatActivity {
         intent = getIntent();
         this.uid = intent.getIntExtra("uid", 0);
 
+        if(savedInstanceState != null) {
+            this.uid = savedInstanceState.getInt("uid");
+        }
+
         // instantiate global variables
         this.db = AppDatabase.getDatabase(getApplicationContext());
-        this.accessor = new MeetingAccessor(db);
-        this.meeting = accessor.readMeeting(uid);
+        this.accessor = new MeetingAccessor(this.db);
+        this.meeting = accessor.readMeeting(this.uid);
     }
 
     @Override
@@ -97,5 +110,6 @@ public class MeetingDetails extends AppCompatActivity {
         super.onResume();
         this.actionBarText = this.configureActionBar();
         this.actionBarText.setText(this.meeting.title);
+
     }
 }

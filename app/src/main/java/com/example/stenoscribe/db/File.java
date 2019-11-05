@@ -13,7 +13,8 @@ import java.time.format.DateTimeFormatter;
 @Entity
 public class File {
 
-    public File(int meeting_id, String path, String type) {
+    public File(int uid, int meeting_id, String path, String type) {
+        this.uid = uid;
         this.meeting_id = meeting_id;
         this.path = path;
         this.type = type;
@@ -25,7 +26,7 @@ public class File {
         return date.format(formatter);
     }
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @NonNull
     public int uid;
 

@@ -42,59 +42,38 @@ public class FileAccessor {
         }
     }
 
-//    private class InserterRunnable implements Runnable {
-//        private AppDatabase db;
-//        private File file;
-//        private int uid;
-//        private String type;
-//
-//        public InserterRunnable(AppDatabase db, File file, int uid, String type) {
-//            this.db = db;
-//            this.file = file;
-//            this.uid = uid;
-//            this.type = type;
-//        }
-//
-//        @Override
-//        public void run() {
-//            this.db.meetingDao().insertMeeting(this.file);
-//        }
-//    }
-//
-//    private class ReaderRunnable implements Runnable {
-//        private AppDatabase db;
-//        private int uid;
-//        private Meeting meeting;
-//
-//        public ReaderRunnable(AppDatabase db, int uid) {
-//            this.db = db;
-//            this.uid = uid;
-//        }
-//
-//        @Override
-//        public void run() {
-//            this.meeting = this.db.meetingDao().getMeeting(this.uid);
-//        }
-//
-//        public Meeting readMeeting() {
-//            return this.meeting;
-//        }
-//    }
-//
-//    private class UpdaterRunnable implements Runnable {
-//        private AppDatabase db;
-//        private Meeting meeting;
-//
-//        public UpdaterRunnable(AppDatabase db, Meeting meeting) {
-//            this.db = db;
-//            this.meeting = meeting;
-//        }
-//
-//        @Override
-//        public void run() {
-//            this.db.meetingDao().updateMeeting(this.meeting);
-//        }
-//    }
+    private class InserterRunnable implements Runnable {
+        private AppDatabase db;
+        private File file;
+
+        public InserterRunnable(AppDatabase db, File file) {
+            this.db = db;
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            this.db.meetingDao().insertFile(this.file);
+        }
+    }
+
+    private class GetterRunnable implements Runnable {
+        private AppDatabase db;
+        private File file;
+        private int uid;
+
+        public GetterRunnable(AppDatabase db, int uid) {
+            this.db = db;
+            this.uid = uid;
+        }
+
+        @Override
+        public void run() {
+            this.file = this.db.meetingDao().getFile(this.uid);
+        }
+
+        public File getFile() { return this.file; }
+    }
 
     public List<File> listFiles() {
         ListerRunnable runnable = new ListerRunnable(this.db, this.uid, this.type);
@@ -110,41 +89,29 @@ public class FileAccessor {
         }
     }
 
-//    public void insertMeeting(Meeting meeting) {
-//        InserterRunnable runnable = new InserterRunnable(this.db, meeting);
-//        Thread thread = new Thread(runnable);
-//        thread.start();
-//        try {
-//            thread.join();
-//        }
-//        catch(Exception e) {
-//            Log.e(tag, e.toString());
-//        }
-//    }
-//
-//    public Meeting readMeeting(int uid) {
-//        ReaderRunnable runnable = new ReaderRunnable(this.db, uid);
-//        Thread thread = new Thread(runnable);
-//        thread.start();
-//        try {
-//            thread.join();
-//            return runnable.readMeeting();
-//        }
-//        catch(Exception e) {
-//            Log.e(tag, e.toString());
-//            return null;
-//        }
-//    }
-//
-//    public void updateMeeting(Meeting meeting) {
-//        UpdaterRunnable runnable = new UpdaterRunnable(this.db, meeting);
-//        Thread thread = new Thread(runnable);
-//        thread.start();
-//        try {
-//            thread.join();
-//        }
-//        catch(Exception e) {
-//            Log.e(tag, e.toString());
-//        }
-//    }
+    public void insertFile(File file) {
+        InserterRunnable runnable = new InserterRunnable(this.db, file);
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+        }
+        catch(Exception e) {
+            Log.e(this.tag, e.toString());
+        }
+    }
+
+    public String getFilePath(int uid) {
+        GetterRunnable runnable = new GetterRunnable(this.db, uid);
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+            return runnable.getFile().path;
+        }
+        catch(Exception e) {
+            Log.e(this.tag, e.toString());
+            return null;
+        }
+    }
 }

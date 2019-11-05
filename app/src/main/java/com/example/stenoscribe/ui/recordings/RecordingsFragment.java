@@ -2,6 +2,8 @@ package com.example.stenoscribe.ui.recordings;
 
 import android.content.Context;
 import android.content.Intent;
+import android.speech.RecognizerIntent;
+import android.content.ActivityNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,14 +20,19 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
+import com.example.stenoscribe.ReadTranscriptionActivity;
 import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
 import com.example.stenoscribe.db.FileAccessor;
+import com.example.stenoscribe.db.FileOperator;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import static android.app.Activity.RESULT_OK;
 
 public class RecordingsFragment extends Fragment {
     private AppDatabase db;
@@ -34,7 +41,12 @@ public class RecordingsFragment extends Fragment {
     private RecordingAdapter adapter;
     private List<File> recordings;
     private ListView listView;
+    private int lastRecordingId;
 //    private RecordingsViewModel recordingsViewModel;
+    private FileOperator io;
+    private int meetingId;
+    private final String type = "recording";
+    private String meetingTitle;
 
     public class RecordingAdapter extends ArrayAdapter<File> {
         private List<File> items;
@@ -66,12 +78,58 @@ public class RecordingsFragment extends Fragment {
         }
     }
 
+    public void startRecording(View view) {
+        int SPEECH_CODE = 3;
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
+        try {
+            //startActivityForResult(intent, SPEECH_CODE);
+            // change this when we test the other shit
+            File f = new File(0, this.meetingId, "doesntexist.txt", this.type);
+            this.accessor.insertFile(f);
+        } catch (ActivityNotFoundException a) {
+            Snackbar.make(view,
+                    "Speech-to-text not supported on your device",
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent i) {
+        super.onActivityResult(requestCode, resultCode, i);
+        final int SPEECH_CODE = 3;
+
+        switch (requestCode) {
+            case SPEECH_CODE: {
+                if (resultCode == RESULT_OK && i != null) {
+                    int uid = this.lastRecordingId + 1;
+                    ArrayList<String> result = i.getStringArrayListExtra(
+                            RecognizerIntent.EXTRA_RESULTS);
+                    String transcription = result.get(0);
+                    String fname = "meeting_" + this.meetingId +
+                                "recording_" + uid + ".txt";
+                    this.io.store(fname, transcription);
+                    File file = new File(uid, this.meetingId, fname, this.type);
+                    this.accessor.insertFile(file);
+                    this.lastRecordingId += 1;
+                }
+                break;
+            }
+        }
+    }
+
     public void configureFab(View root) {
         this.fab = root.findViewById(R.id.fab_recordings);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "This creates a new recording", Snackbar.LENGTH_LONG)
+                startRecording(view);
+                Snackbar.make(view, "Recording", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -84,37 +142,35 @@ public class RecordingsFragment extends Fragment {
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
                 Snackbar.make(v, "This opens a new activity showing the transcription", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                //final Intent intent;
-                // add extras
-                //startActivity(intent);
+
+                int uid = RecordingsFragment.this.recordings.get(position).uid;
+                String path = RecordingsFragment.this.accessor.getFilePath(uid);
+                final Intent intent = new Intent(getContext(), ReadTranscriptionActivity.class);
+                intent.putExtra("path", path);
+                intent.putExtra("meetingTitle", RecordingsFragment.this.meetingTitle);
+                startActivity(intent);
             }
         });
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        this.meetingTitle = ((MeetingDetails)getActivity()).getMeetingTitle();
+        this.meetingId = ((MeetingDetails)getActivity()).getUid();
 //        this.recordingsViewModel = ViewModelProviders.of(this).get(RecordingsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_recordings, container, false);
 
         this.db = AppDatabase.getDatabase(root.getContext());
-        this.accessor = new FileAccessor(this.db, ((MeetingDetails)getActivity()).getUid(), "recording");
+        this.accessor = new FileAccessor(this.db, this.meetingId, this.type);
         this.fab = root.findViewById(R.id.fab);
         this.configureFab(root);
 
-        this.recordings = accessor.listFiles();
-
-        File f1 = new File(((MeetingDetails)getActivity()).getUid(), "/test/path/1", "recording");
-        File f2 = new File(((MeetingDetails)getActivity()).getUid(), "/test/path/2", "recording");
-        this.recordings = new ArrayList<>();
-        this.recordings.add(f1);
-        this.recordings.add(f2);
-
+        this.recordings = this.accessor.listFiles();
+        this.lastRecordingId = this.recordings.size() - 1;
+        this.io = new FileOperator(this.getContext());
         this.adapter = new RecordingAdapter(root.getContext(), R.layout.meetings_list_elem, recordings);
         this.listView = root.findViewById(R.id.recordings_list);
         this.configureListView();
         return root;
     }
-
-
-
 }
