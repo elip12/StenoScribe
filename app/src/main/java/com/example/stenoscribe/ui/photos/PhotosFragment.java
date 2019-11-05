@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import android.content.Intent;
 
 public class PhotosFragment extends Fragment {
 
@@ -41,6 +43,9 @@ public class PhotosFragment extends Fragment {
             public void onClick(View view) {
                 Snackbar.make(view, "This lets you add a photo", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                //Intent intent = new Intent(view.getContext(), AddPhoto.class);
+                //view.getContext().startActivity(intent);
             }
         });
 

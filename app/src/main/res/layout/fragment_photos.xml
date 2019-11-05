@@ -7,19 +7,26 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
     android:background="@drawable/back">
-    <TextView
-        android:id="@+id/text_photos"
-        android:layout_marginTop="0dp"
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="\tDocument 1\n\n\t10:15am"
-        android:textColorHint="@color/colorGray"
-        android:minLines="3"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorGray"
-        android:layout_below="@id/text_photos"/>
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="391dp"
+                android:contentDescription="@string/example"
+                android:visibility="visible"
+                app:srcCompat="@color/colorGray"
+                tools:srcCompat="@tools:sample/avatars" />
+        </LinearLayout>
+    </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_photos"
@@ -28,7 +35,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/bottom_navigation_margin"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_add_black_24dp" />
 
 
