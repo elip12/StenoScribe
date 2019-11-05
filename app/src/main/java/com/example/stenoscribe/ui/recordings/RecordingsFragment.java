@@ -89,7 +89,7 @@ public class RecordingsFragment extends Fragment {
         try {
             //startActivityForResult(intent, SPEECH_CODE);
             // change this when we test the other shit
-            File f = new File(0, this.meetingId, "doesntexist.txt", this.type);
+            File f = new File(this.lastRecordingId + 1, this.meetingId, "doesntexist.txt", this.type);
             this.accessor.insertFile(f);
         } catch (ActivityNotFoundException a) {
             Snackbar.make(view,
