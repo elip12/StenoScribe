@@ -14,6 +14,12 @@ meetings so it’s easy to find the information you need later.
 - documents activity
 - photos activity
 
+mock audio file for presentation
+test with real phoone
+taking image from gallery and storing it to db should work
+click on document link opens google doc in browser
+    also add document from google doc
+
 *For interim presentation 11/12/19:*
 - share activity
 - model for speech-to-text

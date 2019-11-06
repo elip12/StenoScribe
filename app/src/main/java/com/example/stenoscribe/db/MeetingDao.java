@@ -28,7 +28,7 @@ public interface MeetingDao {
 
     // File methods
     @Query("SELECT * from file where type IS :type AND " +
-            "meeting_id IS :meeting_id")
+            "meeting_id IS :meeting_id ORDER BY uid DESC")
     List<File> listFilesOfType(String type, int meeting_id);
 
     @Query("SELECT * FROM file WHERE uid IS :uid LIMIT 1")

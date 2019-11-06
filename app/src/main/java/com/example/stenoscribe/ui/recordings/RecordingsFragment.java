@@ -2,7 +2,9 @@ package com.example.stenoscribe.ui.recordings;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.content.ActivityNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,12 +43,11 @@ public class RecordingsFragment extends Fragment {
     private RecordingAdapter adapter;
     private List<File> recordings;
     private ListView listView;
-    private int lastRecordingId;
+    private int lastRecordingId = 0;
 //    private RecordingsViewModel recordingsViewModel;
     private FileOperator io;
     private int meetingId;
     private final String type = "recording";
-    private String meetingTitle;
 
     public class RecordingAdapter extends ArrayAdapter<File> {
         private List<File> items;
@@ -70,7 +71,7 @@ public class RecordingsFragment extends Fragment {
             if (item != null) {
                 title = v.findViewById(R.id.viewMeetingsListElemTitle);
                 date = v.findViewById(R.id.viewMeetingsListElemDate);
-                String titleString = "Recording " + (position + 1);
+                String titleString = "Recording " + item.uid;
                 title.setText(titleString);
                 date.setText(item.datetime);
             }
@@ -88,9 +89,26 @@ public class RecordingsFragment extends Fragment {
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
         try {
             //startActivityForResult(intent, SPEECH_CODE);
-            // change this when we test the other shit
-            File f = new File(this.lastRecordingId + 1, this.meetingId, "doesntexist.txt", this.type);
+
+            // TEST CODE FOR SPEECH RECOGNIZER NOT USING ACTIVITY
+//            final SpeechRecognizer sr = SpeechRecognizer.createSpeechRecognizer(getContext());
+//            sr.startListening(intent);
+//            new CountDownTimer(2000, 1000) {
+//
+//                public void onTick(long millisUntilFinished) {
+//                    //do nothing, just let it tick
+//                }
+//
+//                public void onFinish() {
+//                    sr.stopListening();
+//                }
+//            }.start();
+
+            // TEST CODE FOR MOCKING FILE INSERTION
+            int id = this.lastRecordingId + 1;
+            File f = new File(id, this.meetingId, "tempfile" + id + ".txt", this.type);
             this.accessor.insertFile(f);
+            this.io.store("tempfile" + id + ".txt", "This is an example transcription.");
         } catch (ActivityNotFoundException a) {
             Snackbar.make(view,
                     "Speech-to-text not supported on your device",
@@ -144,7 +162,7 @@ public class RecordingsFragment extends Fragment {
                 String path = RecordingsFragment.this.accessor.getFilePath(uid);
                 final Intent intent = new Intent(getContext(), ReadTranscriptionActivity.class);
                 intent.putExtra("path", path);
-                intent.putExtra("meetingTitle", "Recording " + (uid + 1));
+                intent.putExtra("meetingTitle", "Recording " + uid);
                 startActivity(intent);
             }
         });
@@ -162,7 +180,8 @@ public class RecordingsFragment extends Fragment {
         this.configureFab(root);
 
         this.recordings = this.accessor.listFiles();
-        this.lastRecordingId = this.recordings.size() - 1;
+        if(this.recordings.size() > 0)
+            this.lastRecordingId = this.recordings.get(0).uid;
         this.io = new FileOperator(this.getContext());
         this.adapter = new RecordingAdapter(root.getContext(), R.layout.meetings_list_elem, recordings);
         this.listView = root.findViewById(R.id.recordings_list);
