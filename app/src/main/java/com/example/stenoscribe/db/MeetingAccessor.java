@@ -110,6 +110,12 @@ public class MeetingAccessor {
         }
     }
 
+    public void insertMeetingAsync(Meeting meeting) {
+        InserterRunnable runnable = new InserterRunnable(this.db, meeting);
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
     public Meeting readMeeting(int uid) {
         ReaderRunnable runnable = new ReaderRunnable(this.db, uid);
         Thread thread = new Thread(runnable);
@@ -135,4 +141,11 @@ public class MeetingAccessor {
             Log.e(tag, e.toString());
         }
     }
+
+    public void updateMeetingAsync(Meeting meeting) {
+        UpdaterRunnable runnable = new UpdaterRunnable(this.db, meeting);
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
 }

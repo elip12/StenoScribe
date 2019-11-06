@@ -7,4 +7,9 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/sync_firebase"
+        android:orderInCategory="100"
+        android:title="@string/sync_firebase"
+        app:showAsAction="never" />
 </menu>

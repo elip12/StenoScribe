@@ -14,6 +14,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.stenoscribe.db.AppDatabase;
+import com.example.stenoscribe.db.FileAccessor;
+import com.example.stenoscribe.db.FirebaseAccessor;
 import com.example.stenoscribe.db.Meeting;
 import com.example.stenoscribe.db.MeetingAccessor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -26,6 +28,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private AppDatabase db;
     private MeetingAccessor accessor;
+    private FirebaseAccessor firebaseAccessor;
     private int lastMeetingUID = 0;
     private List<Meeting> meetings;
     private FloatingActionButton fab;
@@ -85,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void syncFirebase() {
+        this.firebaseAccessor.updateDB(new int[1]);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,12 +103,13 @@ public class MainActivity extends AppCompatActivity {
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
+        this.firebaseAccessor = new FirebaseAccessor(getApplicationContext(),
+                this.accessor, new FileAccessor(this.db));
         this.fab = findViewById(R.id.fab);
         this.configureFab();
     }
 
     public void configureListView() {
-        this.listView.setAdapter(this.adapter);
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
@@ -131,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         this.adapter = new MeetingAdapter(MainActivity.this, R.layout.meetings_list_elem, meetings);
         this.listView = findViewById(R.id.meetings_list);
         this.configureListView();
+        this.listView.setAdapter(this.adapter);
     }
 
     @Override
@@ -149,6 +158,11 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+        else if (id == R.id.sync_firebase) {
+            syncFirebase();
+            this.listView.setAdapter(this.adapter);
             return true;
         }
 

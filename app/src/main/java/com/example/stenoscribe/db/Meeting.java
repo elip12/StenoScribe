@@ -14,6 +14,12 @@ public class Meeting {
         this.uid = uid;
     }
 
+    public Meeting(int uid, String title, String date) {
+        this.uid = uid;
+        this.title = title;
+        this.date = date;
+    }
+
     public String getDate() {
         LocalDateTime date = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy hh:mma");

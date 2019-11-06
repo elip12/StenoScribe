@@ -11,30 +11,26 @@ Add return values if insert, read, or update fails
 public class FileAccessor {
     private final AppDatabase db;
     private final String tag = "DB_RECORDINGACCESSOR";
-    private final int uid;
-    private final String type;
 
-    public FileAccessor(AppDatabase db, int uid, String type){
+    public FileAccessor(AppDatabase db){
         this.db = db;
-        this.uid = uid;
-        this.type = type;
     }
 
     private class ListerRunnable implements Runnable {
         private AppDatabase db;
         private int uid;
-        private String type;
+        private String[] types;
         private List<File> files;
 
-        public ListerRunnable(AppDatabase db, int uid, String type) {
+        public ListerRunnable(AppDatabase db, int uid, String[] types) {
             this.db = db;
             this.uid = uid;
-            this.type = type;
+            this.types = types;
         }
 
         @Override
         public void run() {
-            this.files = this.db.meetingDao().listFilesOfType(this.type, this.uid);
+            this.files = this.db.meetingDao().listFilesOfType(this.types, this.uid);
         }
 
         public List<File> listFiles() {
@@ -75,8 +71,39 @@ public class FileAccessor {
         public File getFile() { return this.file; }
     }
 
-    public List<File> listFiles() {
-        ListerRunnable runnable = new ListerRunnable(this.db, this.uid, this.type);
+    private class UpdaterRunnable implements Runnable {
+        private AppDatabase db;
+        private File file;
+
+        public UpdaterRunnable(AppDatabase db, File file) {
+            this.db = db;
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            this.db.meetingDao().updateFile(this.file);
+        }
+    }
+
+    public List<File> listFiles(int uid, String[] types) {
+        ListerRunnable runnable = new ListerRunnable(this.db, uid, types);
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+            return runnable.listFiles();
+        }
+        catch(Exception e) {
+            Log.e(tag, e.toString());
+            return null;
+        }
+    }
+
+    public List<File> listFiles(int uid, String type) {
+        String[] types = new String[1];
+        types[0] = type;
+        ListerRunnable runnable = new ListerRunnable(this.db, uid, types);
         Thread thread = new Thread(runnable);
         thread.start();
         try {
@@ -101,6 +128,12 @@ public class FileAccessor {
         }
     }
 
+    public void insertFileAsync(File file) {
+        InserterRunnable runnable = new InserterRunnable(this.db, file);
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
     public String getFilePath(int uid) {
         GetterRunnable runnable = new GetterRunnable(this.db, uid);
         Thread thread = new Thread(runnable);
@@ -113,5 +146,23 @@ public class FileAccessor {
             Log.e(this.tag, e.toString());
             return null;
         }
+    }
+
+    public void updateFile(File file) {
+        UpdaterRunnable runnable = new UpdaterRunnable(this.db, file);
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+        }
+        catch(Exception e) {
+            Log.e(this.tag, e.toString());
+        }
+    }
+
+    public void updateFileAsync(File file) {
+        UpdaterRunnable runnable = new UpdaterRunnable(this.db, file);
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 }
