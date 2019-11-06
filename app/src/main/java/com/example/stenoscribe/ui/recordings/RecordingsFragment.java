@@ -175,11 +175,11 @@ public class RecordingsFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_recordings, container, false);
 
         this.db = AppDatabase.getDatabase(root.getContext());
-        this.accessor = new FileAccessor(this.db, this.meetingId, this.type);
+        this.accessor = new FileAccessor(this.db);
         this.fab = root.findViewById(R.id.fab);
         this.configureFab(root);
 
-        this.recordings = this.accessor.listFiles();
+        this.recordings = this.accessor.listFiles(this.meetingId, this.type);
         if(this.recordings.size() > 0)
             this.lastRecordingId = this.recordings.get(0).uid;
         this.io = new FileOperator(this.getContext());

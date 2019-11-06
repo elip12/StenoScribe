@@ -1,19 +1,14 @@
-package com.example.stenoscribe.db;
+package com.example.stenoscribe;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 
-import com.example.stenoscribe.MainActivity;
-import com.example.stenoscribe.MeetingDetails;
-import com.example.stenoscribe.db.MeetingAccessor;
+import com.example.stenoscribe.db.File;
 import com.example.stenoscribe.db.FileAccessor;
 import com.example.stenoscribe.db.Meeting;
+import com.example.stenoscribe.db.MeetingAccessor;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,24 +18,22 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FirebaseAccessor {
     private FirebaseFirestore db;
     private final String TAG = "FIREBASEACCESSOR";
-    private Context context;
+    //private Context context;
     private MeetingAccessor meetingAccessor;
     private FileAccessor fileAccessor;
 
-    public FirebaseAccessor(Context context, MeetingAccessor meetingAccessor, FileAccessor fileAccessor) {
+    public FirebaseAccessor(MeetingAccessor meetingAccessor, FileAccessor fileAccessor) {
         this.db = FirebaseFirestore.getInstance();
-        this.context = context;
+
+        //this.context = context;
         this.meetingAccessor = meetingAccessor;
         this.fileAccessor = fileAccessor;
     }
@@ -53,7 +46,7 @@ public class FirebaseAccessor {
         String date;
 
         data = document.getData();
-        uid = (int)data.get("uid");
+        uid = ((Long)data.get("uid")).intValue();
         title = (String)data.get("title");
         date = (String)data.get("date");
         meeting = new Meeting(uid, title, date);
@@ -70,10 +63,10 @@ public class FirebaseAccessor {
         String type;
 
         files = new ArrayList<>();
-        data = (Map<String, Object>)document.getData();
-        for (Map<String, Object> f: (Map<String, Object>[])data.get("files")) {
-            uid = (int)f.get("uid");
-            meeting_id = (int)f.get("meeting_id");
+        data = document.getData();
+        for (Map<String, Object> f: (ArrayList<Map<String, Object>>)data.get("files")) {
+            uid = ((Long)f.get("uid")).intValue();
+            meeting_id = ((Long)f.get("meeting_id")).intValue();
             path = (String)f.get("path");
             type = (String)f.get("type");
             file = new File(uid, meeting_id, path, type);
@@ -99,6 +92,7 @@ public class FirebaseAccessor {
     // for now, we assume everyone gets access to all meetings
     public void listMeetings() {
         db.collection("meetings")
+                //.where("key", "==", "val")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -106,7 +100,6 @@ public class FirebaseAccessor {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
-
                                 Meeting meeting = convertQDSToMeeting(document);
                                 upsertMeetingAsync(meeting);
                                 List<File> files = convertQDSToFiles(document);

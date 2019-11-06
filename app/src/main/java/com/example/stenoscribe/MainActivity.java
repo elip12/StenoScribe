@@ -15,10 +15,10 @@ import android.widget.TextView;
 
 import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.FileAccessor;
-import com.example.stenoscribe.db.FirebaseAccessor;
 import com.example.stenoscribe.db.Meeting;
 import com.example.stenoscribe.db.MeetingAccessor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -103,8 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
-        this.firebaseAccessor = new FirebaseAccessor(getApplicationContext(),
-                this.accessor, new FileAccessor(this.db));
+        this.firebaseAccessor = new FirebaseAccessor(this.accessor, new FileAccessor(this.db));
         this.fab = findViewById(R.id.fab);
         this.configureFab();
     }
