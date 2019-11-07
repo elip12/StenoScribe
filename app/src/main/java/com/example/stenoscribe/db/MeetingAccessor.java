@@ -12,7 +12,7 @@ Add return values if insert, read, or update fails
 
 public class MeetingAccessor {
     private final AppDatabase db;
-    private final String tag = "DB_MEETINGACCESSOR";
+    private final String TAG = "DB_MEETINGACCESSOR";
 
     public MeetingAccessor(AppDatabase db){
         this.db = db;
@@ -95,7 +95,7 @@ public class MeetingAccessor {
             return runnable.listMeetings();
         }
         catch(Exception e) {
-            Log.e(tag, "listMeetings: " + e.toString());
+            Log.e(TAG, "listMeetings: " + e.toString());
             return null;
         }
     }
@@ -110,7 +110,7 @@ public class MeetingAccessor {
             adapter.notifyDataSetChanged();
         }
         catch(Exception e) {
-            Log.e(tag, "insertMeeting: " + e.toString());
+            Log.e(TAG, "insertMeeting: " + e.toString());
         }
     }
 
@@ -129,7 +129,7 @@ public class MeetingAccessor {
             return runnable.readMeeting();
         }
         catch(Exception e) {
-            Log.e(tag, "readMeeting: " + e.toString());
+            Log.e(TAG, "readMeeting: " + e.toString());
             return null;
         }
     }
@@ -143,7 +143,7 @@ public class MeetingAccessor {
         }
         catch(Exception e) {
 
-            Log.e(tag, "updateMeeting: " + e.toString());
+            Log.e(TAG, "updateMeeting: " + e.toString());
         }
     }
 
