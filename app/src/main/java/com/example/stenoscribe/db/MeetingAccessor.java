@@ -95,7 +95,7 @@ public class MeetingAccessor {
             return runnable.listMeetings();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.e(tag, "listMeetings: " + e.toString());
             return null;
         }
     }
@@ -110,7 +110,7 @@ public class MeetingAccessor {
             adapter.notifyDataSetChanged();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.e(tag, "insertMeeting: " + e.toString());
         }
     }
 
@@ -129,7 +129,7 @@ public class MeetingAccessor {
             return runnable.readMeeting();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.e(tag, "readMeeting: " + e.toString());
             return null;
         }
     }
@@ -142,7 +142,8 @@ public class MeetingAccessor {
             thread.join();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+
+            Log.e(tag, "updateMeeting: " + e.toString());
         }
     }
 

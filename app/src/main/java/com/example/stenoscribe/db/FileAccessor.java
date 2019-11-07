@@ -15,7 +15,7 @@ Add return values if insert, read, or update fails
 
 public class FileAccessor {
     private final AppDatabase db;
-    private final String tag = "DB_FILEACCESSOR";
+    private final String tag = "FILEACCESSOR";
 
     public FileAccessor(AppDatabase db){
         this.db = db;
