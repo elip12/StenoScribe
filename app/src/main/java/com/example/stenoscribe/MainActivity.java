@@ -22,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.List;
 
@@ -92,6 +93,23 @@ public class MainActivity extends AppCompatActivity {
         this.firebaseAccessor.updateDB(new int[1]);
     }
 
+    public void configurePullToRefresh() {
+        final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pull_to_refresh);
+        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+//                syncFirebase();
+                meetings = accessor.listMeetings();
+                if (meetings.size() > 0)
+                    lastMeetingUID = meetings.get(0).uid;
+                adapter.clear();
+                adapter.addAll(meetings);
+                adapter.notifyDataSetChanged();
+                pullToRefresh.setRefreshing(false);
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,16 +117,18 @@ public class MainActivity extends AppCompatActivity {
         this.setToolbarTitle();
 
         /* deletes database; necessary for development when schema changes often */
-        //getApplicationContext().deleteDatabase("stenoscribe");
+        getApplicationContext().deleteDatabase("stenoscribe");
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
         this.firebaseAccessor = new FirebaseAccessor(this.accessor, new FileAccessor(this.db));
         this.fab = findViewById(R.id.fab);
         this.configureFab();
+        this.configurePullToRefresh();
     }
 
     public void configureListView() {
+        this.listView.setAdapter(this.adapter);
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
@@ -126,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        syncFirebase();
         if (this.db == null) {
             this.db = AppDatabase.getDatabase(getApplicationContext());
         }
@@ -138,7 +159,8 @@ public class MainActivity extends AppCompatActivity {
         this.adapter = new MeetingAdapter(MainActivity.this, R.layout.meetings_list_elem, meetings);
         this.listView = findViewById(R.id.meetings_list);
         this.configureListView();
-        this.listView.setAdapter(this.adapter);
+        adapter.notifyDataSetChanged();
+
     }
 
     @Override

@@ -57,15 +57,17 @@ public class FileAccessor {
         private AppDatabase db;
         private File file;
         private int uid;
+        private int meetingId;
 
-        public GetterRunnable(AppDatabase db, int uid) {
+        public GetterRunnable(AppDatabase db, int uid, int meetingId) {
             this.db = db;
             this.uid = uid;
+            this.meetingId = meetingId;
         }
 
         @Override
         public void run() {
-            this.file = this.db.meetingDao().getFile(this.uid);
+            this.file = this.db.meetingDao().getFile(this.uid, this.meetingId);
         }
 
         public File getFile() { return this.file; }
@@ -134,8 +136,8 @@ public class FileAccessor {
         thread.start();
     }
 
-    public String getFilePath(int uid) {
-        GetterRunnable runnable = new GetterRunnable(this.db, uid);
+    public String getFilePath(int uid, int meeting_id) {
+        GetterRunnable runnable = new GetterRunnable(this.db, uid, meeting_id);
         Thread thread = new Thread(runnable);
         thread.start();
         try {

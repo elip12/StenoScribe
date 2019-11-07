@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import org.w3c.dom.Text;
 
 public class ReadTranscriptionActivity extends AppCompatActivity {
     private FileOperator io;
+    private String TAG = "READTRANSCTRIPTION";
 
     // Make actionbar title editable, and show back button
     public void configureActionBar(String title) {
@@ -57,6 +59,7 @@ public class ReadTranscriptionActivity extends AppCompatActivity {
         this.io = new FileOperator(getApplicationContext());
         Intent i = getIntent();
         String path = i.getStringExtra("path");
+        Log.d(TAG, path);
         String data = io.load(path);
         TextView view = findViewById(R.id.transcription_text);
         view.setText(data);

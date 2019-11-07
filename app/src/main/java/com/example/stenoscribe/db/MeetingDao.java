@@ -31,8 +31,8 @@ public interface MeetingDao {
             "meeting_id IS :meeting_id ORDER BY uid DESC")
     List<File> listFilesOfType(String[] types, int meeting_id);
 
-    @Query("SELECT * FROM file WHERE uid IS :uid LIMIT 1")
-    File getFile(int uid);
+    @Query("SELECT * FROM file WHERE uid IS :uid AND meeting_id is :mid LIMIT 1")
+    File getFile(int uid, int mid);
 
     @Insert(entity = File.class)
     void insertFile(File file);
