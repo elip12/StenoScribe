@@ -83,14 +83,18 @@ public class MainActivity extends AppCompatActivity {
                 meeting = new Meeting(MainActivity.this.lastMeetingUID + 1);
                 intent = new Intent(view.getContext(), MeetingDetails.class);
                 intent.putExtra("uid", meeting.uid);
-                accessor.insertMeeting(meeting);
+                accessor.insertMeeting(meeting, adapter);
                 view.getContext().startActivity(intent);
             }
         });
     }
 
-    public void syncFirebase() {
+    public void syncFirebaseToLocal() {
         this.firebaseAccessor.updateDB(new int[1]);
+    }
+
+    public void syncLocalToFirebase() {
+        this.firebaseAccessor.updateFB();
     }
 
     public void configurePullToRefresh() {
@@ -98,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-//                syncFirebase();
                 meetings = accessor.listMeetings();
                 if (meetings.size() > 0)
                     lastMeetingUID = meetings.get(0).uid;
@@ -116,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         this.setToolbarTitle();
 
-        /* deletes database; necessary for development when schema changes often */
-        getApplicationContext().deleteDatabase("stenoscribe");
+        // delete database on restart
+        //getApplicationContext().deleteDatabase("stenoscribe");
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
@@ -146,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        syncFirebase();
         if (this.db == null) {
             this.db = AppDatabase.getDatabase(getApplicationContext());
         }
@@ -160,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
         this.listView = findViewById(R.id.meetings_list);
         this.configureListView();
         adapter.notifyDataSetChanged();
-
     }
 
     @Override
@@ -181,9 +182,12 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-        else if (id == R.id.sync_firebase) {
-            syncFirebase();
-            this.listView.setAdapter(this.adapter);
+        else if (id == R.id.sync_local_firebase) {
+            syncLocalToFirebase();
+            return true;
+        }
+        else if (id == R.id.sync_firebase_local) {
+            syncFirebaseToLocal();
             return true;
         }
 

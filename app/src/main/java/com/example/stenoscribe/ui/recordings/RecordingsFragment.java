@@ -135,7 +135,7 @@ public class RecordingsFragment extends Fragment {
                                 "recording_" + uid + ".txt";
                     this.io.store(fname, transcription);
                     File file = new File(uid, this.meetingId, fname, this.type);
-                    this.accessor.insertFile(file);
+                    this.accessor.insertFile(file, adapter);
                     Log.d(this.TAG, fname);
                 }
                 break;

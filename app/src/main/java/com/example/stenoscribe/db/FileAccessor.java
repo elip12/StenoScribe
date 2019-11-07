@@ -1,6 +1,11 @@
 package com.example.stenoscribe.db;
 
 import android.util.Log;
+import android.widget.ArrayAdapter;
+
+import com.example.stenoscribe.MainActivity;
+import com.example.stenoscribe.MeetingDetails;
+import com.example.stenoscribe.ui.recordings.RecordingsFragment;
 
 import java.util.List;
 
@@ -10,7 +15,7 @@ Add return values if insert, read, or update fails
 
 public class FileAccessor {
     private final AppDatabase db;
-    private final String tag = "DB_RECORDINGACCESSOR";
+    private final String tag = "DB_FILEACCESSOR";
 
     public FileAccessor(AppDatabase db){
         this.db = db;
@@ -97,7 +102,7 @@ public class FileAccessor {
             return runnable.listFiles();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.e(tag, "listFiles: " + e.toString());
             return null;
         }
     }
@@ -113,20 +118,22 @@ public class FileAccessor {
             return runnable.listFiles();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.w(tag, "listFiles: " + e.toString());
             return null;
         }
     }
 
-    public void insertFile(File file) {
+    public void insertFile(File file, ArrayAdapter<File> adapter) {
         InserterRunnable runnable = new InserterRunnable(this.db, file);
         Thread thread = new Thread(runnable);
         thread.start();
         try {
             thread.join();
+            adapter.add(file);
+            adapter.notifyDataSetChanged();
         }
         catch(Exception e) {
-            Log.e(this.tag, e.toString());
+            Log.e(this.tag, "insertFile: " +e.toString());
         }
     }
 
@@ -145,7 +152,7 @@ public class FileAccessor {
             return runnable.getFile().path;
         }
         catch(Exception e) {
-            Log.e(this.tag, e.toString());
+            Log.w(this.tag, "getFilePath: " +e.toString());
             return null;
         }
     }
@@ -158,7 +165,7 @@ public class FileAccessor {
             thread.join();
         }
         catch(Exception e) {
-            Log.e(this.tag, e.toString());
+            Log.e(this.tag, "updateFile: " + e.toString());
         }
     }
 

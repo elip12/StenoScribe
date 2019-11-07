@@ -2,6 +2,8 @@ package com.example.stenoscribe.db;
 
 import android.util.Log;
 
+import com.example.stenoscribe.MainActivity;
+
 import java.util.List;
 
 /*
@@ -98,12 +100,14 @@ public class MeetingAccessor {
         }
     }
 
-    public void insertMeeting(Meeting meeting) {
+    public void insertMeeting(Meeting meeting, MainActivity.MeetingAdapter adapter) {
         InserterRunnable runnable = new InserterRunnable(this.db, meeting);
         Thread thread = new Thread(runnable);
         thread.start();
         try {
             thread.join();
+            adapter.add(meeting);
+            adapter.notifyDataSetChanged();
         }
         catch(Exception e) {
             Log.e(tag, e.toString());

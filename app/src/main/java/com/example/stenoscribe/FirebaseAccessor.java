@@ -20,6 +20,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,31 @@ public class FirebaseAccessor {
         this.meetingAccessor = meetingAccessor;
         this.fileAccessor = fileAccessor;
     }
+
+    public Map<String, Object> convertMeetingToQDS(Meeting meeting) {
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("uid", meeting.uid);
+        data.put("title", meeting.title);
+        data.put("date", meeting.date);
+        data.put("files", new ArrayList<Map<String, Object>>());
+        return data;
+    }
+
+    public Map<String, Object> addFilesToQDS(Map<String, Object> m, List<File> files) {
+        ArrayList<Map<String, Object>> a = (ArrayList<Map<String, Object>>)m.get("files");
+        for (File file: files) {
+            Map<String, Object> fmap = new HashMap<>();
+            fmap.put("uid", file.uid);
+            fmap.put("meeting_id", file.meeting_id);
+            fmap.put("path", file.path);
+            fmap.put("type", file.type);
+            a.add(fmap);
+        }
+        m.put("files", a);
+        return m;
+    }
+
 
     public Meeting convertQDSToMeeting(QueryDocumentSnapshot document) {
         Map<String, Object> data;
@@ -118,67 +144,32 @@ public class FirebaseAccessor {
         listMeetings();
     }
 
-    public void updateFB() {
-        // if you have any info that firebase doesnt have/ for every meeting and associated file in your database
-        // push that info to firebase
+    public void upsertMeeting(Map<String, Object> meeting) {
+        String uid = meeting.get("uid").toString();
+        db.collection("meetings")
+                .document(uid)
+                .set(meeting)
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
+    }
 
+    public void updateFB() {
+
+        List<Meeting> meetings = meetingAccessor.listMeetings();
+        for (Meeting meeting: meetings) {
+            String[] types = {"recording", "document", "photo"};
+            List<File> files = fileAccessor.listFiles(meeting.uid, types);
+            Map<String, Object> m = convertMeetingToQDS(meeting);
+            m = addFilesToQDS(m, files);
+            upsertMeeting(m);
+        }
     }
 
 
-
-
-//    public void configureListView(ListView listView, MainActivity.MeetingAdapter adapter) {
-//        listView.setAdapter(adapter);
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
-//                final Meeting item;
-//                final Intent intent;
-//
-//                item = (Meeting) adapter.getItemAtPosition(position);
-//                intent = new Intent(context, MeetingDetails.class);
-//                intent.putExtra("uid", item.uid);
-//                context.startActivity(intent);
-//            }
-//        });
-//    }
-//
-//
-//
-//    public String getDate() {
-//        LocalDateTime date = LocalDateTime.now();
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy hh:mma");
-//        return date.format(formatter);
-//    }
-//
-//    public Map<String, Object> createMeeting(long uid) {
-//        final Map<String, Object> meeting;
-//        meeting = new HashMap<>();
-//        meeting.put("uid", uid);
-//        meeting.put("title", "New Meeting");
-//        meeting.put("datetime", getDate());
-//        meeting.put("recordings", new HashMap<String, Object>());
-//        meeting.put("photos", new HashMap<String, Object>());
-//        meeting.put("documents", new HashMap<String, Object>());
-//        return meeting;
-//    }
-//
-//    public void upsertMeeting(Map<String, Object> meeting) {
-//        db.collection("meetings")
-//                .add(meeting)
-//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                    @Override
-//                    public void onSuccess(DocumentReference documentReference) {
-//                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.w(TAG, "Error adding document", e);
-//                    }
-//                });
-//    }
 //
 //    public class MeetingComparator implements Comparator<Map<String, Object>> {
 //
