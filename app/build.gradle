@@ -35,5 +35,6 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$room_version"
     testImplementation "androidx.room:room-testing:$room_version"
     implementation 'com.google.firebase:firebase-firestore:21.2.1'
+
 }
 apply plugin: 'com.google.gms.google-services'

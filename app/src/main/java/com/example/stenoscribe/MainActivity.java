@@ -18,7 +18,6 @@ import com.example.stenoscribe.db.FileAccessor;
 import com.example.stenoscribe.db.Meeting;
 import com.example.stenoscribe.db.MeetingAccessor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
