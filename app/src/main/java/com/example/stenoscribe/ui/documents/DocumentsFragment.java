@@ -40,7 +40,6 @@ public class DocumentsFragment extends Fragment {
     private FileOperator io;
     private int meetingId;
     private final String type = "recording";
-
     private String TAG = "DOCUMENTSFRAGMENT";
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.meetingId = ((MeetingDetails)getActivity()).getUid();
