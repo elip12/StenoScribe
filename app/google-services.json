@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "113000642978",
+    "firebase_url": "https://stenoscribe.firebaseio.com",
+    "project_id": "stenoscribe",
+    "storage_bucket": "stenoscribe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113000642978:android:406759c16ef025cb825afb",
+        "android_client_info": {
+          "package_name": "com.example.stenoscribe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "113000642978-7mmfg4odhodpgbb7ilor9e98qa4mlpe7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHO-8i_vT0pZCJVer5TjC4A_UQLAB8zyU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "113000642978-7mmfg4odhodpgbb7ilor9e98qa4mlpe7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
