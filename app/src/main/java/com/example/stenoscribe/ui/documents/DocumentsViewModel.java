@@ -6,13 +6,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
+import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
+import com.example.stenoscribe.db.FileAccessor;
+import com.example.stenoscribe.db.FileOperator;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +27,13 @@ import static androidx.core.content.ContextCompat.getSystemService;
 
 public class DocumentsViewModel extends ViewModel {
     private MutableLiveData<String> mText;
+    AppDatabase database;
+    FileAccessor access;
+    List<File> documents;
+    int meetingId;
+    com.example.stenoscribe.ui.documents.DocumentAdapter docudapt;
+    private final String type = "document";
+    private String TAG = "DOCUMENTSFRAGMENT";
     public DocumentsViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is documents fragment");

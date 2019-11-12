@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         this.setToolbarTitle();
 
         // delete database on restart
-        //getApplicationContext().deleteDatabase("stenoscribe");
+        getApplicationContext().deleteDatabase("stenoscribe");
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+       /* if (id == R.id.action_settings) {
             return true;
         }
         else if (id == R.id.sync_local_firebase) {
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         else if (id == R.id.sync_firebase_local) {
             syncFirebaseToLocal();
             return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }

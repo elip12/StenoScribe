@@ -6,13 +6,13 @@
 
     <TextView
         android:id="@+id/document_title"
-        android:layout_width="match_parent"
-        android:layout_height="20dp" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
 
     <TextView
-        android:id="@+id/document_time"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_weight="0" />
-
+        android:id="@+id/document_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
 </LinearLayout>
