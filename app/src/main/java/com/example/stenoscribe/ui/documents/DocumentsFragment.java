@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +43,6 @@ public class DocumentsFragment extends Fragment {
     private FloatingActionButton fab;
     private ListView listView;
     private FileOperator io;
-    private final String type = "recording";
     private String TAG = "DOCUMENTSFRAGMENT";
     static int label = 1;
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,9 +53,11 @@ public class DocumentsFragment extends Fragment {
         documentsViewModel.database = AppDatabase.getDatabase(root.getContext());
         documentsViewModel.access = new FileAccessor(documentsViewModel.database);
         documentsViewModel.documents = documentsViewModel.access.listFiles(documentsViewModel.meetingId,"document");
-        documentsViewModel.docudapt = new DocumentAdapter(getContext(),documentsViewModel.documents);
         File new_file = new File(label++,documentsViewModel.meetingId,"https://i.imgur.com/B3zuvJLb.jpg","document");
+        File other_file = new File(label++,documentsViewModel.meetingId,"https://i.imgur.com/B3zuvJLb.jpg","document");
         documentsViewModel.documents.add(new_file);
+        documentsViewModel.documents.add(other_file);
+        documentsViewModel.docudapt = new DocumentAdapter(getContext(),documentsViewModel.documents);
         document_viewer.setAdapter(documentsViewModel.docudapt);
         FloatingActionButton fab = root.findViewById(R.id.fab_documents);
         fab.setOnClickListener(new View.OnClickListener() {

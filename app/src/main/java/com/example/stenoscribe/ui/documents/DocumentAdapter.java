@@ -27,14 +27,13 @@ class DocumentAdapter extends ArrayAdapter {
         current_context = context;
         files = file_list;
     }
-
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View current_view = convertView;
         // this stops it from crashing.
         if(current_view == null) {
-            current_view = LayoutInflater.from(current_context).inflate(R.layout.fragment_document_layout,parent,false);
+            current_view = LayoutInflater.from(current_context).inflate(R.layout.add_document,parent,false);
         }
         File current_file = files.get(position);
         TextView file_title = (TextView) current_view.findViewById(R.id.document_title);
