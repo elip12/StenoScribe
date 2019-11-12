@@ -27,15 +27,18 @@ public interface MeetingDao {
     void deleteMeeting(Meeting meeting);
 
     // File methods
-    @Query("SELECT * from file where type IS :type AND " +
+    @Query("SELECT * from file where type IN (:types) AND " +
             "meeting_id IS :meeting_id ORDER BY uid DESC")
-    List<File> listFilesOfType(String type, int meeting_id);
+    List<File> listFilesOfType(String[] types, int meeting_id);
 
-    @Query("SELECT * FROM file WHERE uid IS :uid LIMIT 1")
-    File getFile(int uid);
+    @Query("SELECT * FROM file WHERE uid IS :uid AND meeting_id is :mid LIMIT 1")
+    File getFile(int uid, int mid);
 
     @Insert(entity = File.class)
     void insertFile(File file);
+
+    @Update(entity = File.class)
+    void updateFile(File file);
 
     @Delete(entity = File.class)
     void deleteFile(File file);

@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Entity
+@Entity(primaryKeys = {"uid", "meeting_id"})
 public class File {
 
     public File(int uid, int meeting_id, String path, String type) {
@@ -26,7 +26,6 @@ public class File {
         return date.format(formatter);
     }
 
-    @PrimaryKey
     @NonNull
     public int uid;
 

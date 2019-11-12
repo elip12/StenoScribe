@@ -2,6 +2,8 @@ package com.example.stenoscribe.db;
 
 import android.util.Log;
 
+import com.example.stenoscribe.MainActivity;
+
 import java.util.List;
 
 /*
@@ -10,7 +12,7 @@ Add return values if insert, read, or update fails
 
 public class MeetingAccessor {
     private final AppDatabase db;
-    private final String tag = "DB_MEETINGACCESSOR";
+    private final String TAG = "DB_MEETINGACCESSOR";
 
     public MeetingAccessor(AppDatabase db){
         this.db = db;
@@ -93,21 +95,29 @@ public class MeetingAccessor {
             return runnable.listMeetings();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.e(TAG, "listMeetings: " + e.toString());
             return null;
         }
     }
 
-    public void insertMeeting(Meeting meeting) {
+    public void insertMeeting(Meeting meeting, MainActivity.MeetingAdapter adapter) {
         InserterRunnable runnable = new InserterRunnable(this.db, meeting);
         Thread thread = new Thread(runnable);
         thread.start();
         try {
             thread.join();
+            adapter.add(meeting);
+            adapter.notifyDataSetChanged();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.e(TAG, "insertMeeting: " + e.toString());
         }
+    }
+
+    public void insertMeetingAsync(Meeting meeting) {
+        InserterRunnable runnable = new InserterRunnable(this.db, meeting);
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
     public Meeting readMeeting(int uid) {
@@ -119,7 +129,7 @@ public class MeetingAccessor {
             return runnable.readMeeting();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.e(TAG, "readMeeting: " + e.toString());
             return null;
         }
     }
@@ -132,7 +142,15 @@ public class MeetingAccessor {
             thread.join();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+
+            Log.e(TAG, "updateMeeting: " + e.toString());
         }
     }
+
+    public void updateMeetingAsync(Meeting meeting) {
+        UpdaterRunnable runnable = new UpdaterRunnable(this.db, meeting);
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
 }
