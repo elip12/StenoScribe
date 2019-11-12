@@ -131,12 +131,14 @@ public class RecordingsFragment extends Fragment {
                     ArrayList<String> result = i.getStringArrayListExtra(
                             RecognizerIntent.EXTRA_RESULTS);
                     String transcription = result.get(0);
-                    String fname = "meeting_" + this.meetingId +
-                                "recording_" + uid + ".txt";
-                    this.io.store(fname, transcription);
-                    File file = new File(uid, this.meetingId, fname, this.type);
+                    File file = new File(uid, this.meetingId, transcription, this.type);
                     this.accessor.insertFile(file, adapter);
-                    Log.d(this.TAG, fname);
+                    recordings = accessor.listFiles(meetingId, type);
+                    if(recordings.size() > 0)
+                        lastRecordingId = recordings.get(0).uid;
+                    adapter.clear();
+                    adapter.addAll(recordings);
+                    adapter.notifyDataSetChanged();
                 }
                 break;
             }

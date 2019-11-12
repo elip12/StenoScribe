@@ -58,9 +58,7 @@ public class ReadTranscriptionActivity extends AppCompatActivity {
 
         this.io = new FileOperator(getApplicationContext());
         Intent i = getIntent();
-        String path = i.getStringExtra("path");
-        Log.d(TAG, path);
-        String data = io.load(path);
+        String data = i.getStringExtra("path");
         TextView view = findViewById(R.id.transcription_text);
         view.setText(data);
         String title = i.getStringExtra("meetingTitle");
