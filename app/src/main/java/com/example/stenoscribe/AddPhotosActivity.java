@@ -1,6 +1,8 @@
 package com.example.stenoscribe;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Button;
 import android.os.Bundle;
@@ -62,8 +64,11 @@ public class AddPhotosActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-        cameraImage.setImageBitmap(bitmap);
+        Bitmap bitmap;
+        if (data != null) {
+            bitmap = (Bitmap) data.getExtras().get("data");
+            cameraImage.setImageBitmap(bitmap);
+        }
 
 //        Uri selectedImage = data.getData();
 //        String[] filePathColumn = { MediaStore.Images.Media.DATA };
@@ -76,5 +81,13 @@ public class AddPhotosActivity extends AppCompatActivity {
 //        cursor.close();
 //
 //        galleryImage.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId()== android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
