@@ -18,13 +18,12 @@
             android:orientation="vertical" >
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/cameraIV"
                 android:layout_width="match_parent"
                 android:layout_height="391dp"
                 android:contentDescription="@string/example"
                 android:visibility="visible"
-                app:srcCompat="@color/colorGray"
-                tools:srcCompat="@tools:sample/avatars" />
+                app:srcCompat="@android:drawable/ic_menu_gallery" />
         </LinearLayout>
     </ScrollView>
 
