@@ -182,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
         this.listView = findViewById(R.id.meetings_list);
         this.configureListView();
         adapter.notifyDataSetChanged();
-        Log.d("MAIN", user.getUid());
     }
 
     @Override

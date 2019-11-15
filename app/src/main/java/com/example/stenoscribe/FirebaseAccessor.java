@@ -13,6 +13,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -30,6 +32,7 @@ public class FirebaseAccessor {
     //private Context context;
     private MeetingAccessor meetingAccessor;
     private FileAccessor fileAccessor;
+    private FirebaseAuth auth;
 
     public FirebaseAccessor(MeetingAccessor meetingAccessor, FileAccessor fileAccessor) {
         this.db = FirebaseFirestore.getInstance();
@@ -37,6 +40,8 @@ public class FirebaseAccessor {
         //this.context = context;
         this.meetingAccessor = meetingAccessor;
         this.fileAccessor = fileAccessor;
+        this.auth = FirebaseAuth.getInstance();
+        Log.d(TAG, auth.getUid());
     }
 
     public Map<String, Object> convertMeetingToQDS(Meeting meeting) {
@@ -118,7 +123,7 @@ public class FirebaseAccessor {
     // for now, we assume everyone gets access to all meetings
     public void listMeetings() {
         db.collection("meetings")
-                //.where("key", "==", "val")
+                .whereArrayContains("users", this.auth.getUid())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -140,7 +145,7 @@ public class FirebaseAccessor {
                 });
     }
 
-    public void updateDB(int[] uids) {
+    public void updateDB() {
         listMeetings();
     }
 

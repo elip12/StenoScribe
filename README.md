@@ -9,22 +9,20 @@ transcriptions for a meeting in a single place, and organize your stored
 meetings so it’s easy to find the information you need later.
 
 ## Todo
-*For interim presentation 11/12/19:*
 Eli:
     - meeting uids are uuids. Order meetings by date.
-    - sync remote to local only syncs meetings you have access to
     - record until manually turn off
-    - store all info in db, none on disk
-        - documents doesnt change
-        - photos need to be converted to bit strings, compressed, and stored in db
-        - recordings can store compressed or raw transcription
+    - store recordings
+    - share activity
+    - update schema to hold meetings users, automatically add current user uid on create
 
 Hannah:
--   taking image from gallery and storing it to db should work
+    - taking image from gallery and storing it to db should work
+    - photos need to be converted to bit strings, compressed, and stored in db
 
 Matthew:
--   click on document link opens google doc in browser
-    also add document from google docs browser (unlikely to have by time)
+    - click on document link opens google doc in browser
+    - add document from google docs browser
 
 
 ## Quick Git tutorial
