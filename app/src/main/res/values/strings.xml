@@ -10,4 +10,9 @@
     <string name="title_documents">Documents</string>
     <string name="example">example</string>
     <string name="speech_prompt">Begin Recording</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="logout">Sign out</string>
+    <string name="sign_in_cancelled">Sign in cancelled</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="sign_in_failed">Sign in failed</string>
 </resources>
