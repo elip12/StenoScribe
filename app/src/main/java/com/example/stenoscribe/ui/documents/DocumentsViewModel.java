@@ -40,28 +40,28 @@ public class DocumentsViewModel extends ViewModel {
     }
     private Context current_context;
     private ArrayList<File> Document_list;
-    public class DocumentAdapter extends ArrayAdapter<File> {
-        private List<File> Documents;
-        private DocumentAdapter(Context context,int rId, ArrayList<File> Documents) {
-            super(context, rId, Documents);
-            current_context = context;
-            Document_list = Documents;
-        }
-        @Override
-        public View getView(int position, View v, ViewGroup parent) {
-            final TextView title;
-            if (v == null) {
-                LayoutInflater vi = (LayoutInflater)current_context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = vi.inflate(R.layout.fragment_document_layout, null);
-            }
-            File Document = Document_list.get(position);
-            if (Document != null) {
-                title = v.findViewById(R.id.document_title);
-                title.setText(Document.type);
-            }
-            return v;
-        }
-    }
+//    public class DocumentAdapter extends ArrayAdapter<File> {
+//        private List<File> Documents;
+//        private DocumentAdapter(Context context,int rId, ArrayList<File> Documents) {
+//            super(context, rId, Documents);
+//            current_context = context;
+//            Document_list = Documents;
+//        }
+//        @Override
+//        public View getView(int position, View v, ViewGroup parent) {
+//            final TextView title;
+//            if (v == null) {
+//                LayoutInflater vi = (LayoutInflater)current_context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                v = vi.inflate(R.layout.fragment_document_layout, null);
+//            }
+//            File Document = Document_list.get(position);
+//            if (Document != null) {
+//                title = v.findViewById(R.id.document_title);
+//                title.setText(Document.type);
+//            }
+//            return v;
+//        }
+//    }
     public LiveData<String> getText() {
         return mText;
     }

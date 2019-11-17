@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,7 @@ public class DocumentsFragment extends Fragment {
         File other_file = new File(label++,documentsViewModel.meetingId,"https://i.imgur.com/B3zuvJLb.jpg","document");
         documentsViewModel.documents.add(new_file);
         documentsViewModel.documents.add(other_file);
-        documentsViewModel.docudapt = new DocumentAdapter(getContext(),documentsViewModel.documents);
+        documentsViewModel.docudapt = new DocumentAdapter(getContext(), R.layout.fragment_document_layout, documentsViewModel.documents);
         document_viewer.setAdapter(documentsViewModel.docudapt);
         FloatingActionButton fab = root.findViewById(R.id.fab_documents);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -69,11 +70,17 @@ public class DocumentsFragment extends Fragment {
                 fragmentTransaction.replace(R.id.document_view,next);
                 fragmentTransaction.commit();*/
                 // NETWORK CHECKER GOES HERE.
+                Log.d(TAG, "FAB clicked");
                 File new_file = new File(label++,documentsViewModel.meetingId,"https://i.imgur.com/B3zuvJLb.jpg","document");
+                Log.d(TAG, documentsViewModel.documents.toString());
                 documentsViewModel.documents.add(new_file);
+                Log.d(TAG, documentsViewModel.documents.toString());
                 documentsViewModel.docudapt.clear();
+                Log.d(TAG, documentsViewModel.documents.toString());
                 documentsViewModel.docudapt.addAll(documentsViewModel.documents);
+                Log.d(TAG, documentsViewModel.documents.toString());
                 documentsViewModel.docudapt.notifyDataSetChanged();
+
             }
         });
         return root;

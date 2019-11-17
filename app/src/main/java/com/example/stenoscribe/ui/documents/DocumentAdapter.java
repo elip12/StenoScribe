@@ -22,8 +22,8 @@ class DocumentAdapter extends ArrayAdapter {
     // requires a new array since it cant be passed in directly
     private List<File> files;
     // constructor
-    public DocumentAdapter(Context context, List<File> file_list){
-        super(context, 0, file_list);
+    public DocumentAdapter(Context context, int rId, List<File> file_list){
+        super(context, rId, file_list);
         current_context = context;
         files = file_list;
     }
@@ -33,12 +33,13 @@ class DocumentAdapter extends ArrayAdapter {
         View current_view = convertView;
         // this stops it from crashing.
         if(current_view == null) {
-            current_view = LayoutInflater.from(current_context).inflate(R.layout.add_document,parent,false);
+            LayoutInflater vi = (LayoutInflater)current_context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            current_view = vi.inflate(R.layout.fragment_document_layout, null);
         }
         File current_file = files.get(position);
         TextView file_title = (TextView) current_view.findViewById(R.id.document_title);
         file_title.setText("Document");
-        TextView file_date = (TextView) current_view.findViewById(R.id.document_date);
+        TextView file_date = (TextView) current_view.findViewById(R.id.document_time);
         file_date.setText(current_file.getDate());
         return current_view;
     }
