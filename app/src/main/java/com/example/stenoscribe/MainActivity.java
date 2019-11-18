@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
-        this.firebaseAccessor = new FirebaseAccessor(this.accessor, new FileAccessor(this.db));
+        this.firebaseAccessor = FirebaseAccessor.getInstance(getApplicationContext(), this.accessor, new FileAccessor(this.db));
         this.fab = findViewById(R.id.fab);
         this.configureFab();
         this.configurePullToRefresh();

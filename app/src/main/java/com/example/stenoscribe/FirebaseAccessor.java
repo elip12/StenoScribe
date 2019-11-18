@@ -2,6 +2,7 @@ package com.example.stenoscribe;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -9,6 +10,7 @@ import com.example.stenoscribe.db.File;
 import com.example.stenoscribe.db.FileAccessor;
 import com.example.stenoscribe.db.Meeting;
 import com.example.stenoscribe.db.MeetingAccessor;
+import com.example.stenoscribe.ui.sharing.SharingFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,15 +36,30 @@ public class FirebaseAccessor {
     private MeetingAccessor meetingAccessor;
     private FileAccessor fileAccessor;
     private FirebaseAuth auth;
+    private static FirebaseAccessor instance;
+    private Context context;
 
-    public FirebaseAccessor(MeetingAccessor meetingAccessor, FileAccessor fileAccessor) {
+    private FirebaseAccessor(Context context, MeetingAccessor meetingAccessor, FileAccessor fileAccessor) {
         this.db = FirebaseFirestore.getInstance();
 
-        //this.context = context;
+        this.context = context;
         this.meetingAccessor = meetingAccessor;
         this.fileAccessor = fileAccessor;
         this.auth = FirebaseAuth.getInstance();
         Log.d(TAG, auth.getUid());
+    }
+
+    public static FirebaseAccessor getInstance() {
+        if (instance != null)
+            return instance;
+        return null;
+    }
+
+    public static FirebaseAccessor getInstance(Context context, MeetingAccessor ma, FileAccessor fa) {
+        if (instance != null)
+            return instance;
+        instance = new FirebaseAccessor(context, ma, fa);
+        return instance;
     }
 
     public Map<String, Object> convertMeetingToQDS(Meeting meeting) {
@@ -150,10 +167,11 @@ public class FirebaseAccessor {
         listMeetings();
     }
 
-    public void shareWith(final String uid, final String email) {
+    public void shareWith(final String uid, final String email, final boolean remove) {
         final ArrayList<String> users = new ArrayList<>();
         db.collection("meetings")
                 .whereEqualTo("uid", uid)
+                .whereArrayContains("users", auth.getCurrentUser().getEmail())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -164,15 +182,26 @@ public class FirebaseAccessor {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Map<String, Object> data = document.getData();
                                 users.addAll((ArrayList<String>)data.get("users"));
-                                if (!users.contains(email))
+                                if (remove)
+                                    users.remove(email);
+                                else if (!users.contains(email))
                                     users.add(email);
                                 db.collection("meetings")
                                         .document(uid)
                                         .update("users", users)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                Toast.makeText(context, "Shared successfully",
+                                                        Toast.LENGTH_LONG).show();
+                                            }
+                                        })
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
                                                 Log.w(TAG, "Error updating document", e);
+                                                Toast.makeText(context, "Error sharing",
+                                                        Toast.LENGTH_LONG).show();
                                             }
                                         });
                             }
@@ -248,11 +277,10 @@ public class FirebaseAccessor {
         }
     }
 
-    // returns the list of users who have access to a given meeting
-    public List<String> getUsers(String uid) { // adapter, then put the dudes in the adapter or something
-        final ArrayList<String> users = new ArrayList<>();
+    public void listUsers(String uid, final SharingFragment.SharingAdapter adapter) {
         db.collection("meetings")
                 .whereEqualTo("uid", uid)
+                .whereArrayContains("users", auth.getCurrentUser().getEmail())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -262,15 +290,14 @@ public class FirebaseAccessor {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Map<String, Object> data = document.getData();
-                                for (String f: (ArrayList<String>)data.get("users")) {
-                                    users.add(f);
-                                }
+                                adapter.clear();
+                                adapter.addAll((ArrayList<String>)data.get("users"));
+                                adapter.notifyDataSetChanged();
                             }
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
                         }
                     }
                 });
-        return users;
     }
 }

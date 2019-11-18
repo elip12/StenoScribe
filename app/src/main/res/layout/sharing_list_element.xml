@@ -8,12 +8,20 @@
         android:layout_height="50dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="10dp"
+        android:textColor="@color/colorGray"
+        android:gravity="center_vertical"
         />
     <ImageButton
         android:id="@+id/button"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignParentRight="true"
+        android:background="@drawable/back"
         android:src="@drawable/ic_delete_black_24dp"
         />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@id/email"
+        android:background="@color/colorGray" />
 </RelativeLayout>
