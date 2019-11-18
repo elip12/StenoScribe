@@ -31,6 +31,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.List;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private AppDatabase db;
@@ -87,7 +88,8 @@ public class MainActivity extends AppCompatActivity {
                 final Meeting meeting;
                 final Intent intent;
 
-                meeting = new Meeting(MainActivity.this.lastMeetingUID + 1);
+                String uid = UUID.randomUUID().toString();
+                meeting = new Meeting(uid);
                 intent = new Intent(view.getContext(), MeetingDetails.class);
                 intent.putExtra("uid", meeting.uid);
                 accessor.insertMeeting(meeting, adapter);
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void syncFirebaseToLocal() {
-        this.firebaseAccessor.updateDB(new int[1]);
+        this.firebaseAccessor.updateDB();
     }
 
     public void syncLocalToFirebase() {
@@ -110,8 +112,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 meetings = accessor.listMeetings();
-                if (meetings.size() > 0)
-                    lastMeetingUID = meetings.get(0).uid;
                 adapter.clear();
                 adapter.addAll(meetings);
                 adapter.notifyDataSetChanged();
@@ -176,8 +176,6 @@ public class MainActivity extends AppCompatActivity {
             this.accessor = new MeetingAccessor(this.db);
         }
         this.meetings = accessor.listMeetings();
-        if (this.meetings.size() > 0)
-            this.lastMeetingUID = this.meetings.get(0).uid;
         this.adapter = new MeetingAdapter(MainActivity.this, R.layout.meetings_list_elem, meetings);
         this.listView = findViewById(R.id.meetings_list);
         this.configureListView();

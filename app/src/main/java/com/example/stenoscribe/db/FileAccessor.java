@@ -23,11 +23,11 @@ public class FileAccessor {
 
     private class ListerRunnable implements Runnable {
         private AppDatabase db;
-        private int uid;
+        private String uid;
         private String[] types;
         private List<File> files;
 
-        public ListerRunnable(AppDatabase db, int uid, String[] types) {
+        public ListerRunnable(AppDatabase db, String uid, String[] types) {
             this.db = db;
             this.uid = uid;
             this.types = types;
@@ -62,9 +62,9 @@ public class FileAccessor {
         private AppDatabase db;
         private File file;
         private int uid;
-        private int meetingId;
+        private String meetingId;
 
-        public GetterRunnable(AppDatabase db, int uid, int meetingId) {
+        public GetterRunnable(AppDatabase db, int uid, String meetingId) {
             this.db = db;
             this.uid = uid;
             this.meetingId = meetingId;
@@ -93,7 +93,7 @@ public class FileAccessor {
         }
     }
 
-    public List<File> listFiles(int uid, String[] types) {
+    public List<File> listFiles(String uid, String[] types) {
         ListerRunnable runnable = new ListerRunnable(this.db, uid, types);
         Thread thread = new Thread(runnable);
         thread.start();
@@ -107,7 +107,7 @@ public class FileAccessor {
         }
     }
 
-    public List<File> listFiles(int uid, String type) {
+    public List<File> listFiles(String uid, String type) {
         String[] types = new String[1];
         types[0] = type;
         ListerRunnable runnable = new ListerRunnable(this.db, uid, types);
@@ -143,8 +143,8 @@ public class FileAccessor {
         thread.start();
     }
 
-    public String getFilePath(int uid, int meeting_id) {
-        GetterRunnable runnable = new GetterRunnable(this.db, uid, meeting_id);
+    public String getFilePath(int uid, String meetingId) {
+        GetterRunnable runnable = new GetterRunnable(this.db, uid, meetingId);
         Thread thread = new Thread(runnable);
         thread.start();
         try {

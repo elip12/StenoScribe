@@ -53,10 +53,10 @@ public class MeetingAccessor {
 
     private class ReaderRunnable implements Runnable {
         private AppDatabase db;
-        private int uid;
+        private String uid;
         private Meeting meeting;
 
-        public ReaderRunnable(AppDatabase db, int uid) {
+        public ReaderRunnable(AppDatabase db, String uid) {
             this.db = db;
             this.uid = uid;
         }
@@ -120,7 +120,7 @@ public class MeetingAccessor {
         thread.start();
     }
 
-    public Meeting readMeeting(int uid) {
+    public Meeting readMeeting(String uid) {
         ReaderRunnable runnable = new ReaderRunnable(this.db, uid);
         Thread thread = new Thread(runnable);
         thread.start();

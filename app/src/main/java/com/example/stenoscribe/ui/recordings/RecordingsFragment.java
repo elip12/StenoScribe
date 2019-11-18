@@ -47,7 +47,7 @@ public class RecordingsFragment extends Fragment {
     private int lastRecordingId = 0;
 //    private RecordingsViewModel recordingsViewModel;
     private FileOperator io;
-    private int meetingId;
+    private String meetingId;
     private final String type = "recording";
     private String TAG = "RECORDINGSFRAGMENT";
 

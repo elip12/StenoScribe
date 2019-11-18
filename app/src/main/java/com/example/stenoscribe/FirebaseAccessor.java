@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class FirebaseAccessor {
     private FirebaseFirestore db;
@@ -72,12 +73,12 @@ public class FirebaseAccessor {
     public Meeting convertQDSToMeeting(QueryDocumentSnapshot document) {
         Map<String, Object> data;
         Meeting meeting;
-        int uid;
+        String uid;
         String title;
         String date;
 
         data = document.getData();
-        uid = ((Long)data.get("uid")).intValue();
+        uid = (String)data.get("uid");
         title = (String)data.get("title");
         date = (String)data.get("date");
         meeting = new Meeting(uid, title, date);
@@ -89,7 +90,7 @@ public class FirebaseAccessor {
         List<File> files;
         File file;
         int uid;
-        int meeting_id;
+        String meeting_id;
         String path;
         String type;
 
@@ -97,7 +98,7 @@ public class FirebaseAccessor {
         data = document.getData();
         for (Map<String, Object> f: (ArrayList<Map<String, Object>>)data.get("files")) {
             uid = ((Long)f.get("uid")).intValue();
-            meeting_id = ((Long)f.get("meeting_id")).intValue();
+            meeting_id = (String)f.get("meeting_id");
             path = (String)f.get("path");
             type = (String)f.get("type");
             file = new File(uid, meeting_id, path, type);
@@ -123,7 +124,7 @@ public class FirebaseAccessor {
     // for now, we assume everyone gets access to all meetings
     public void listMeetings() {
         db.collection("meetings")
-                .whereArrayContains("users", this.auth.getUid())
+                .whereArrayContains("users", this.auth.getCurrentUser().getEmail())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -149,8 +150,44 @@ public class FirebaseAccessor {
         listMeetings();
     }
 
-    public void upsertMeeting(Map<String, Object> meeting) {
-        String uid = meeting.get("uid").toString();
+    public void shareWith(final String uid, final String email) {
+        final ArrayList<String> users = new ArrayList<>();
+        db.collection("meetings")
+                .whereEqualTo("uid", uid)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            // this should have only one meeting in it
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                Map<String, Object> data = document.getData();
+                                users.addAll((ArrayList<String>)data.get("users"));
+                                if (!users.contains(email))
+                                    users.add(email);
+                                db.collection("meetings")
+                                        .document(uid)
+                                        .update("users", users)
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w(TAG, "Error updating document", e);
+                                            }
+                                        });
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting document", task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void createMeeting(Map<String, Object> meeting) {
+        final String uid = meeting.get("uid").toString();
+        final ArrayList<String> users = new ArrayList<>();
+        users.add(auth.getCurrentUser().getEmail());
+        meeting.put("users", users);
         db.collection("meetings")
                 .document(uid)
                 .set(meeting)
@@ -158,6 +195,43 @@ public class FirebaseAccessor {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error adding document", e);
+                    }
+                });
+    }
+
+    public void updateMeeting(Map<String, Object> meeting) {
+        final String uid = meeting.get("uid").toString();
+        db.collection("meetings")
+                .document(uid)
+                .update(meeting)
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
+    }
+
+    public void upsertMeeting(final Map<String, Object> meeting) {
+        final String uid = meeting.get("uid").toString();
+        db.collection("meetings")
+                .whereEqualTo("uid", uid)
+                .whereArrayContains("users", auth.getCurrentUser().getEmail())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().size() == 0) {
+                                Log.d(TAG, "Creating meeting");
+                                createMeeting(meeting);
+                            }
+                            else {
+                                Log.d(TAG, "Updating meeting");
+                                updateMeeting(meeting);
+                            }
+
+                        }
                     }
                 });
     }
@@ -174,39 +248,29 @@ public class FirebaseAccessor {
         }
     }
 
-
-//
-//    public class MeetingComparator implements Comparator<Map<String, Object>> {
-//
-//        public int compare(Map<String, Object> m1, Map<String, Object> m2) {
-//            long m1id = (long)m1.get("uid");
-//            long m2id = (long)m2.get("uid");
-//            if (m1id > m2id)
-//                return -1;
-//            else if (m2id == m1id)
-//                return 0;
-//            else
-//                return 1;
-//        }
-//    }
-//
-//
-
-//    public Map<String, Object> getMeeting(int uid) {
-//        db.collection("meetings")
-//                .get()
-//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        if (task.isSuccessful()) {
-//
-//                            for (QueryDocumentSnapshot document : task.getResult()) {
-//                                Log.d(TAG, document.getId() + " => " + document.getData());
-//                            }
-//                        } else {
-//                            Log.w(TAG, "Error getting documents.", task.getException());
-//                        }
-//                    }
-//                });
-//    }
+    // returns the list of users who have access to a given meeting
+    public List<String> getUsers(String uid) { // adapter, then put the dudes in the adapter or something
+        final ArrayList<String> users = new ArrayList<>();
+        db.collection("meetings")
+                .whereEqualTo("uid", uid)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            // this should have only one meeting in it
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                Map<String, Object> data = document.getData();
+                                for (String f: (ArrayList<String>)data.get("users")) {
+                                    users.add(f);
+                                }
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+        return users;
+    }
 }

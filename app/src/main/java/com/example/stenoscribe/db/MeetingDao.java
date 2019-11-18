@@ -14,7 +14,7 @@ public interface MeetingDao {
     List<Meeting> listMeetings();
 
     @Query("SELECT * FROM meeting WHERE uid IS :uid LIMIT 1")
-    Meeting getMeeting(int uid);
+    Meeting getMeeting(String uid);
 
     //@Query("INSERT INTO meeting DEFAULT VALUES")
     @Insert(entity = Meeting.class)
@@ -28,11 +28,11 @@ public interface MeetingDao {
 
     // File methods
     @Query("SELECT * from file where type IN (:types) AND " +
-            "meeting_id IS :meeting_id ORDER BY uid DESC")
-    List<File> listFilesOfType(String[] types, int meeting_id);
+            "meeting_id IS :meetingId ORDER BY uid DESC")
+    List<File> listFilesOfType(String[] types, String meetingId);
 
     @Query("SELECT * FROM file WHERE uid IS :uid AND meeting_id is :mid LIMIT 1")
-    File getFile(int uid, int mid);
+    File getFile(int uid, String mid);
 
     @Insert(entity = File.class)
     void insertFile(File file);

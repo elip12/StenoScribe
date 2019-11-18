@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 @Entity
 public class Meeting {
 
-    public Meeting(int uid) {
+    public Meeting(String uid) {
         this.uid = uid;
     }
 
     @Ignore
-    public Meeting(int uid, String title, String date) {
+    public Meeting(String uid, String title, String date) {
         this.uid = uid;
         this.title = title;
         this.date = date;
@@ -30,7 +30,7 @@ public class Meeting {
 
     @PrimaryKey()
     @NonNull
-    public int uid;
+    public String uid;
 
     @ColumnInfo(name = "title")
     @NonNull
