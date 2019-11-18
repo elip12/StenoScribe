@@ -22,4 +22,10 @@
         android:name="com.example.stenoscribe.ui.documents.DocumentsFragment"
         android:label="@string/title_documents"
         tools:layout="@layout/fragment_documents" />
+
+    <fragment
+        android:id="@+id/navigation_sharing"
+        android:name="com.example.stenoscribe.ui.sharing.SharingFragment"
+        android:label="@string/title_sharing"
+        tools:layout="@layout/fragment_sharing" />
 </navigation>
