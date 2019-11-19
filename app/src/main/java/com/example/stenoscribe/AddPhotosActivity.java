@@ -33,6 +33,7 @@ import com.example.stenoscribe.db.FileOperator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
@@ -114,38 +115,9 @@ public class AddPhotosActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-//        if (resultCode != RESULT_OK)
-//            return;
-//
-//        switch (requestCode) {
-////            case 0:
-////                // Send image taken from camera for cropping
-////                beginCrop();
-////                break;
-////
-////            case Crop.REQUEST_CROP:
-////                // Update image view after image crop
-////                handleCrop(resultCode, data);
-////                // Delete temporary image taken by camera after crop.
-//            if(isTakenFromCamera) {
-//                File f = new File(mImageCaptureUri.getPath());
-//                {
-//                    if (f.exists())
-//                        f.delete();
-//                }
-//            }
-//        }
-//        break;
-//    }
-
-//        if (requestCode == 0 && resultCode == RESULT_OK) {
-//            File imgFile = new  File(imageFilePath);
-//            if(imgFile.exists())            {
-//                cameraImage.setImageURI(Uri.fromFile(imgFile));
-//            }
-//        }
 
         Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+        saveInternalStorage(bitmap);
         cameraImage.setImageBitmap(bitmap);
 
         Uri selectedImage = data.getData();
@@ -185,20 +157,20 @@ public class AddPhotosActivity extends AppCompatActivity {
 //
 //        galleryImage.setImageBitmap(BitmapFactory.decodeFile(picturePath));
 
-//    private File createImageFile() throws IOException {
-//        String timeStamp =
-//                new SimpleDateFormat("yyyyMMdd_HHmmss",
-//                        Locale.getDefault()).format(new Date());
-//        String imageFileName = "IMG_" + timeStamp + "_";
-//        File storageDir =
-//                getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-//        File image = File.createTempFile(
-//                imageFileName,  /* prefix */
-//                ".jpg",         /* suffix */
-//                storageDir      /* directory */
-//        );
-//
-//        imageFilePath = image.getAbsolutePath();
-//        return image;
-//    }
+    private String saveInternalStorage(Bitmap bitmapImage){
+        io.getApplicationContext();
+        File directory = io.getDir("imageDir", Context.MODE_PRIVATE);
+        File mypath=new File(directory,"profile.jpg");
+
+        FileOutputStream fos = null;
+
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return directory.getAbsolutePath();
+    }
 }

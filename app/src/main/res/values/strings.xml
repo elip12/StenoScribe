@@ -8,4 +8,7 @@
     <string name="title_documents">Documents</string>
     <string name="example">example</string>
     <string name="speech_prompt">Begin Recording</string>
+    <string name="photo_choice">Camera or Gallery?</string>
+    <string name="camera_option_description">Camera description</string>
+    <string name="gallery_option_description">Gallery description</string>
 </resources>
