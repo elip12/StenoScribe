@@ -9,6 +9,7 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
@@ -158,8 +159,9 @@ public class AddPhotosActivity extends AppCompatActivity {
 //        galleryImage.setImageBitmap(BitmapFactory.decodeFile(picturePath));
 
     private String saveInternalStorage(Bitmap bitmapImage){
-        io.getApplicationContext();
-        File directory = io.getDir("imageDir", Context.MODE_PRIVATE);
+        //io.getApplicationContext();
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         File mypath=new File(directory,"profile.jpg");
 
         FileOutputStream fos = null;
