@@ -1,9 +1,11 @@
 package com.example.stenoscribe.ui.photos;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -16,6 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.content.Intent;
 
 public class PhotosFragment extends Fragment {
+    private ImageView image;
 
     private PhotosViewModel photosViewModel;
 
@@ -32,6 +35,8 @@ public class PhotosFragment extends Fragment {
 //            }
 //        });
 
+        image = root.findViewById(R.id.cameraIV);
+
         FloatingActionButton fab = root.findViewById(R.id.fab_photos);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,4 +51,20 @@ public class PhotosFragment extends Fragment {
 
         return root;
     }
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+//        image.setImageBitmap(bitmap);
+//
+////        Uri selectedImage = data.getData();
+////        FileOperator filepath = io.child("Photo").child(selectedImage.getLastPathSegment());
+////        filepath.putFile(selectedImage).addSucessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+////            @Override
+////            public void onSuccess(UploadTask.TaskSnapshot takeSnapshot) {
+////                Toast.makeText(AddPhotosActivity.this, "Uploading finished", Toast.LENGTH_SHORT).show();
+////            }
+////        });
+//    }
 }
