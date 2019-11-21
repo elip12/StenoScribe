@@ -1,8 +1,13 @@
 package com.example.stenoscribe.ui.recordings;
 
+import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.CountDownTimer;
+import android.os.IBinder;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.content.ActivityNotFoundException;
@@ -15,8 +20,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -24,6 +31,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
 import com.example.stenoscribe.ReadTranscriptionActivity;
+import com.example.stenoscribe.SpeechService;
 import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
 import com.example.stenoscribe.db.FileAccessor;
@@ -45,11 +53,27 @@ public class RecordingsFragment extends Fragment {
     private List<File> recordings;
     private ListView listView;
     private int lastRecordingId = 0;
-//    private RecordingsViewModel recordingsViewModel;
-    private FileOperator io;
     private String meetingId;
     private final String type = "recording";
     private String TAG = "RECORDINGSFRAGMENT";
+    private static final int REQUEST_RECORD_PERMISSION = 100;
+    private SpeechService speechService;
+    private boolean isBound = false;
+    private boolean recordingPermission = true;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            SpeechService.MyBinder binder = (SpeechService.MyBinder) service;
+            speechService = binder.getService();
+            Log.d(TAG, "Connected to service");
+            isBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            isBound = false;
+            Log.d(TAG, "Disconnected to service");
+        }
+    };
 
     public class RecordingAdapter extends ArrayAdapter<File> {
         private List<File> items;
@@ -81,78 +105,132 @@ public class RecordingsFragment extends Fragment {
         }
     }
 
-    public void startRecording(View view) {
-        int SPEECH_CODE = 3;
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
-        try {
-            startActivityForResult(intent, SPEECH_CODE);
-
-            // TEST CODE FOR SPEECH RECOGNIZER NOT USING ACTIVITY
-//            final SpeechRecognizer sr = SpeechRecognizer.createSpeechRecognizer(getContext());
-//            sr.startListening(intent);
-//            new CountDownTimer(2000, 1000) {
+//    public void startRecording(View view) {
+//        int SPEECH_CODE = 3;
+//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+//                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
 //
-//                public void onTick(long millisUntilFinished) {
-//                    //do nothing, just let it tick
-//                }
+//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
+//        try {
+//            startActivityForResult(intent, SPEECH_CODE);
 //
-//                public void onFinish() {
-//                    sr.stopListening();
-//                }
-//            }.start();
+//            // TEST CODE FOR SPEECH RECOGNIZER NOT USING ACTIVITY
+////            final SpeechRecognizer sr = SpeechRecognizer.createSpeechRecognizer(getContext());
+////            sr.startListening(intent);
+////            new CountDownTimer(2000, 1000) {
+////
+////                public void onTick(long millisUntilFinished) {
+////                    //do nothing, just let it tick
+////                }
+////
+////                public void onFinish() {
+////                    sr.stopListening();
+////                }
+////            }.start();
+//
+//            // TEST CODE FOR MOCKING FILE INSERTION
+////            int id = this.lastRecordingId + 1;
+////            File f = new File(id, this.meetingId, "tempfile" + id + ".txt", this.type);
+////            this.accessor.insertFile(f);
+////            this.io.store("tempfile" + id + ".txt", "This is an example transcription.");
+//        } catch (ActivityNotFoundException a) {
+//            Snackbar.make(view,
+//                    "Speech-to-text not supported on your device",
+//                    Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show();
+//        }
+//    }
 
-            // TEST CODE FOR MOCKING FILE INSERTION
-//            int id = this.lastRecordingId + 1;
-//            File f = new File(id, this.meetingId, "tempfile" + id + ".txt", this.type);
-//            this.accessor.insertFile(f);
-//            this.io.store("tempfile" + id + ".txt", "This is an example transcription.");
-        } catch (ActivityNotFoundException a) {
-            Snackbar.make(view,
-                    "Speech-to-text not supported on your device",
-                    Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-        }
+    public void requestPermissions() {
+        Log.d(TAG, "requestPermission");
+        ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        REQUEST_RECORD_PERMISSION);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent i) {
-        super.onActivityResult(requestCode, resultCode, i);
-        final int SPEECH_CODE = 3;
-
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.d(TAG, "onRequestPermissionsResult");
         switch (requestCode) {
-            case SPEECH_CODE: {
-                if (resultCode == RESULT_OK && i != null) {
-                    int uid = this.lastRecordingId + 1;
-                    ArrayList<String> result = i.getStringArrayListExtra(
-                            RecognizerIntent.EXTRA_RESULTS);
-                    String transcription = result.get(0);
-                    File file = new File(uid, this.meetingId, transcription, this.type);
-                    this.accessor.insertFile(file, adapter);
-                    recordings = accessor.listFiles(meetingId, type);
-                    if(recordings.size() > 0)
-                        lastRecordingId = recordings.get(0).uid;
-                    adapter.clear();
-                    adapter.addAll(recordings);
-                    adapter.notifyDataSetChanged();
+            case REQUEST_RECORD_PERMISSION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    recordingPermission = true;
+                } else {
+                    recordingPermission = false;
                 }
-                break;
-            }
         }
     }
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent i) {
+//        super.onActivityResult(requestCode, resultCode, i);
+//        final int SPEECH_CODE = 3;
+//
+//        switch (requestCode) {
+//            case SPEECH_CODE: {
+//                if (resultCode == RESULT_OK && i != null) {
+//                    int uid = this.lastRecordingId + 1;
+//                    ArrayList<String> result = i.getStringArrayListExtra(
+//                            RecognizerIntent.EXTRA_RESULTS);
+//                    String transcription = result.get(0);
+//                    File file = new File(uid, this.meetingId, transcription, this.type);
+//                    this.accessor.insertFile(file, adapter);
+//                    recordings = accessor.listFiles(meetingId, type);
+//                    if(recordings.size() > 0)
+//                        lastRecordingId = recordings.get(0).uid;
+//                    adapter.clear();
+//                    adapter.addAll(recordings);
+//                    adapter.notifyDataSetChanged();
+//                }
+//                break;
+//            }
+//        }
+//    }
 
     public void configureFab(View root) {
         this.fab = root.findViewById(R.id.fab_recordings);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startRecording(view);
-                Snackbar.make(view, "Recording", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (!isBound) {
+                    if (!recordingPermission) {
+                        Toast.makeText(getContext(), "Permission denied",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Intent i = new Intent(getContext(), SpeechService.class);
+                        getContext().startService(i);
+                        getContext().bindService(i, connection, Context.BIND_AUTO_CREATE);
+                        Snackbar.make(view, "Recording", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
+                }
+                else {
+                    // stop listening for speech. should automatically process speech and append to returnedText
+                    speechService.stopListening();
+                    getContext().unbindService(connection);
+                    Intent i = new Intent(getContext(), SpeechService.class);
+                    getActivity().stopService(i);
+
+                    // get transcription from service
+                    String transcription = speechService.returnedText;
+
+                    // add new recording into database;
+                    int uid = lastRecordingId + 1;
+                    File file = new File(uid, meetingId, transcription, type);
+                    accessor.insertFile(file, adapter);
+                    recordings = accessor.listFiles(meetingId, type);
+                    if(recordings.size() > 0)
+                        lastRecordingId = recordings.get(0).uid;
+                    adapter.clear();
+                    adapter.addAll(recordings);
+                    adapter.notifyDataSetChanged();
+                    Snackbar.make(view, "Stopping recording", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
             }
         });
     }
@@ -202,11 +280,11 @@ public class RecordingsFragment extends Fragment {
         this.recordings = this.accessor.listFiles(this.meetingId, this.type);
         if(this.recordings.size() > 0)
             this.lastRecordingId = this.recordings.get(0).uid;
-        this.io = new FileOperator(this.getContext());
         this.adapter = new RecordingAdapter(root.getContext(), R.layout.meetings_list_elem, recordings);
         this.listView = root.findViewById(R.id.recordings_list);
         this.configureListView();
         configurePullToRefresh(root);
+        requestPermissions();
         return root;
     }
 }
