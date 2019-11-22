@@ -9,44 +9,20 @@ transcriptions for a meeting in a single place, and organize your stored
 meetings so it’s easy to find the information you need later.
 
 ## Todo
-*For Tuesday 11/5/19:*
-- record activity
-- documents activity
-- photos activity
+Eli:
+    - meeting uids are uuids. Order meetings by date.
+    - record until manually turn off
+    - store recordings
+    - share activity
+    - update schema to hold meetings users, automatically add current user uid on create
 
-mock audio file for presentation
-test with real phoone
-taking image from gallery and storing it to db should work
-click on document link opens google doc in browser
-    also add document from google doc
+Hannah:
+    - taking image from gallery and storing it to db should work
+    - photos need to be converted to bit strings, compressed, and stored in db
 
-*For interim presentation 11/12/19:*
-- share activity
-- model for speech-to-text
-    - imagebutton for starting recording
-    - RecognizerIntent with flags:
-        ACTION_RECOGNIZE_SPEECH
-        LANGUAGE_MODEL_FREE_FORM
-        EXTRA_PROMPT
-    ```
-    SPEECH_CODE = 1;
-    import android.speech.RecognizerIntent;
-    import android.content.ActivityNotFoundException;
-    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-    intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                getString(R.string.speech_prompt));
-    try {
-            startActivityForResult(intent, SPEECH_CODE);
-        } catch (ActivityNotFoundException a) {
-            // print "speech to text not supported"          
-        }
-    ```
-    - override onActivityResult
-        - requestCode == SPEECH_CODE: 
-            ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+Matthew:
+    - click on document link opens google doc in browser
+    - add document from google docs browser
 
 
 ## Quick Git tutorial

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
@@ -46,8 +47,9 @@ public class RecordingsFragment extends Fragment {
     private int lastRecordingId = 0;
 //    private RecordingsViewModel recordingsViewModel;
     private FileOperator io;
-    private int meetingId;
+    private String meetingId;
     private final String type = "recording";
+    private String TAG = "RECORDINGSFRAGMENT";
 
     public class RecordingAdapter extends ArrayAdapter<File> {
         private List<File> items;
@@ -88,7 +90,7 @@ public class RecordingsFragment extends Fragment {
 
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
         try {
-            //startActivityForResult(intent, SPEECH_CODE);
+            startActivityForResult(intent, SPEECH_CODE);
 
             // TEST CODE FOR SPEECH RECOGNIZER NOT USING ACTIVITY
 //            final SpeechRecognizer sr = SpeechRecognizer.createSpeechRecognizer(getContext());
@@ -105,10 +107,10 @@ public class RecordingsFragment extends Fragment {
 //            }.start();
 
             // TEST CODE FOR MOCKING FILE INSERTION
-            int id = this.lastRecordingId + 1;
-            File f = new File(id, this.meetingId, "tempfile" + id + ".txt", this.type);
-            this.accessor.insertFile(f);
-            this.io.store("tempfile" + id + ".txt", "This is an example transcription.");
+//            int id = this.lastRecordingId + 1;
+//            File f = new File(id, this.meetingId, "tempfile" + id + ".txt", this.type);
+//            this.accessor.insertFile(f);
+//            this.io.store("tempfile" + id + ".txt", "This is an example transcription.");
         } catch (ActivityNotFoundException a) {
             Snackbar.make(view,
                     "Speech-to-text not supported on your device",
@@ -129,12 +131,14 @@ public class RecordingsFragment extends Fragment {
                     ArrayList<String> result = i.getStringArrayListExtra(
                             RecognizerIntent.EXTRA_RESULTS);
                     String transcription = result.get(0);
-                    String fname = "meeting_" + this.meetingId +
-                                "recording_" + uid + ".txt";
-                    this.io.store(fname, transcription);
-                    File file = new File(uid, this.meetingId, fname, this.type);
-                    this.accessor.insertFile(file);
-                    this.lastRecordingId += 1;
+                    File file = new File(uid, this.meetingId, transcription, this.type);
+                    this.accessor.insertFile(file, adapter);
+                    recordings = accessor.listFiles(meetingId, type);
+                    if(recordings.size() > 0)
+                        lastRecordingId = recordings.get(0).uid;
+                    adapter.clear();
+                    adapter.addAll(recordings);
+                    adapter.notifyDataSetChanged();
                 }
                 break;
             }
@@ -159,11 +163,27 @@ public class RecordingsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
                 int uid = RecordingsFragment.this.recordings.get(position).uid;
-                String path = RecordingsFragment.this.accessor.getFilePath(uid);
+                String path = RecordingsFragment.this.accessor.getFilePath(uid, meetingId);
                 final Intent intent = new Intent(getContext(), ReadTranscriptionActivity.class);
                 intent.putExtra("path", path);
                 intent.putExtra("meetingTitle", "Recording " + uid);
                 startActivity(intent);
+            }
+        });
+    }
+
+    public void configurePullToRefresh(View root) {
+        final SwipeRefreshLayout pullToRefresh = root.findViewById(R.id.pull_to_refresh);
+        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                recordings = accessor.listFiles(meetingId, type);
+                if(recordings.size() > 0)
+                    lastRecordingId = recordings.get(0).uid;
+                adapter.clear();
+                adapter.addAll(recordings);
+                adapter.notifyDataSetChanged();
+                pullToRefresh.setRefreshing(false);
             }
         });
     }
@@ -175,17 +195,18 @@ public class RecordingsFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_recordings, container, false);
 
         this.db = AppDatabase.getDatabase(root.getContext());
-        this.accessor = new FileAccessor(this.db, this.meetingId, this.type);
+        this.accessor = new FileAccessor(this.db);
         this.fab = root.findViewById(R.id.fab);
         this.configureFab(root);
 
-        this.recordings = this.accessor.listFiles();
+        this.recordings = this.accessor.listFiles(this.meetingId, this.type);
         if(this.recordings.size() > 0)
             this.lastRecordingId = this.recordings.get(0).uid;
         this.io = new FileOperator(this.getContext());
         this.adapter = new RecordingAdapter(root.getContext(), R.layout.meetings_list_elem, recordings);
         this.listView = root.findViewById(R.id.recordings_list);
         this.configureListView();
+        configurePullToRefresh(root);
         return root;
     }
 }

@@ -28,9 +28,9 @@ public class MeetingDetails extends AppCompatActivity {
     private MeetingAccessor accessor;
     private Meeting meeting;
     private EditText actionBarText;
-    private int uid;
+    private String uid;
 
-    public int getUid() {
+    public String getUid() {
         return this.uid;
     }
 
@@ -89,7 +89,7 @@ public class MeetingDetails extends AppCompatActivity {
 
         // get data from intent
         intent = getIntent();
-        this.uid = intent.getIntExtra("uid", 0);
+        this.uid = intent.getStringExtra("uid");
 
         // instantiate global variables
         this.db = AppDatabase.getDatabase(getApplicationContext());

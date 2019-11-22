@@ -2,6 +2,7 @@ package com.example.stenoscribe;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -14,23 +15,34 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.stenoscribe.db.AppDatabase;
+import com.example.stenoscribe.db.FileAccessor;
 import com.example.stenoscribe.db.Meeting;
 import com.example.stenoscribe.db.MeetingAccessor;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.List;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private AppDatabase db;
     private MeetingAccessor accessor;
+    private FirebaseAccessor firebaseAccessor;
     private int lastMeetingUID = 0;
     private List<Meeting> meetings;
     private FloatingActionButton fab;
     private MeetingAdapter adapter;
     private ListView listView;
+    FirebaseUser user;
 
     public class MeetingAdapter extends ArrayAdapter<Meeting> {
         private List<Meeting> items;
@@ -76,13 +88,48 @@ public class MainActivity extends AppCompatActivity {
                 final Meeting meeting;
                 final Intent intent;
 
-                meeting = new Meeting(MainActivity.this.lastMeetingUID + 1);
+                String uid = UUID.randomUUID().toString();
+                meeting = new Meeting(uid);
                 intent = new Intent(view.getContext(), MeetingDetails.class);
                 intent.putExtra("uid", meeting.uid);
-                accessor.insertMeeting(meeting);
+                accessor.insertMeeting(meeting, adapter);
                 view.getContext().startActivity(intent);
             }
         });
+    }
+
+    public void syncFirebaseToLocal() {
+        this.firebaseAccessor.updateDB();
+    }
+
+    public void syncLocalToFirebase() {
+        this.firebaseAccessor.updateFB();
+    }
+
+    public void configurePullToRefresh() {
+        final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pull_to_refresh);
+        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                meetings = accessor.listMeetings();
+                adapter.clear();
+                adapter.addAll(meetings);
+                adapter.notifyDataSetChanged();
+                pullToRefresh.setRefreshing(false);
+            }
+        });
+    }
+
+    public void logout() {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // user is now signed out
+                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                        finish();
+                    }
+                });
     }
 
     @Override
@@ -91,13 +138,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         this.setToolbarTitle();
 
-        /* deletes database; necessary for development when schema changes often */
-        //getApplicationContext().deleteDatabase("stenoscribe");
+        // delete database on restart
+        getApplicationContext().deleteDatabase("stenoscribe");
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
+        this.firebaseAccessor = FirebaseAccessor.getInstance(getApplicationContext(), this.accessor, new FileAccessor(this.db));
         this.fab = findViewById(R.id.fab);
         this.configureFab();
+        this.configurePullToRefresh();
+        user = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     public void configureListView() {
@@ -126,11 +176,10 @@ public class MainActivity extends AppCompatActivity {
             this.accessor = new MeetingAccessor(this.db);
         }
         this.meetings = accessor.listMeetings();
-        if (this.meetings.size() > 0)
-            this.lastMeetingUID = this.meetings.get(0).uid;
         this.adapter = new MeetingAdapter(MainActivity.this, R.layout.meetings_list_elem, meetings);
         this.listView = findViewById(R.id.meetings_list);
         this.configureListView();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -150,6 +199,17 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+        else if (id == R.id.sync_local_firebase) {
+            syncLocalToFirebase();
+            return true;
+        }
+        else if (id == R.id.sync_firebase_local) {
+            syncFirebaseToLocal();
+            return true;
+        }
+        else if (id == R.id.logout) {
+            logout();
         }
 
         return super.onOptionsItemSelected(item);

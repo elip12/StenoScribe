@@ -3,6 +3,7 @@ package com.example.stenoscribe.db;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
@@ -10,8 +11,15 @@ import java.time.LocalDateTime;
 @Entity
 public class Meeting {
 
-    public Meeting(int uid) {
+    public Meeting(String uid) {
         this.uid = uid;
+    }
+
+    @Ignore
+    public Meeting(String uid, String title, String date) {
+        this.uid = uid;
+        this.title = title;
+        this.date = date;
     }
 
     public String getDate() {
@@ -22,7 +30,7 @@ public class Meeting {
 
     @PrimaryKey()
     @NonNull
-    public int uid;
+    public String uid;
 
     @ColumnInfo(name = "title")
     @NonNull

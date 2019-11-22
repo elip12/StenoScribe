@@ -1,6 +1,11 @@
 package com.example.stenoscribe.db;
 
 import android.util.Log;
+import android.widget.ArrayAdapter;
+
+import com.example.stenoscribe.MainActivity;
+import com.example.stenoscribe.MeetingDetails;
+import com.example.stenoscribe.ui.recordings.RecordingsFragment;
 
 import java.util.List;
 
@@ -10,31 +15,27 @@ Add return values if insert, read, or update fails
 
 public class FileAccessor {
     private final AppDatabase db;
-    private final String tag = "DB_RECORDINGACCESSOR";
-    private final int uid;
-    private final String type;
+    private final String tag = "FILEACCESSOR";
 
-    public FileAccessor(AppDatabase db, int uid, String type){
+    public FileAccessor(AppDatabase db){
         this.db = db;
-        this.uid = uid;
-        this.type = type;
     }
 
     private class ListerRunnable implements Runnable {
         private AppDatabase db;
-        private int uid;
-        private String type;
+        private String uid;
+        private String[] types;
         private List<File> files;
 
-        public ListerRunnable(AppDatabase db, int uid, String type) {
+        public ListerRunnable(AppDatabase db, String uid, String[] types) {
             this.db = db;
             this.uid = uid;
-            this.type = type;
+            this.types = types;
         }
 
         @Override
         public void run() {
-            this.files = this.db.meetingDao().listFilesOfType(this.type, this.uid);
+            this.files = this.db.meetingDao().listFilesOfType(this.types, this.uid);
         }
 
         public List<File> listFiles() {
@@ -61,22 +62,39 @@ public class FileAccessor {
         private AppDatabase db;
         private File file;
         private int uid;
+        private String meetingId;
 
-        public GetterRunnable(AppDatabase db, int uid) {
+        public GetterRunnable(AppDatabase db, int uid, String meetingId) {
             this.db = db;
             this.uid = uid;
+            this.meetingId = meetingId;
         }
 
         @Override
         public void run() {
-            this.file = this.db.meetingDao().getFile(this.uid);
+            this.file = this.db.meetingDao().getFile(this.uid, this.meetingId);
         }
 
         public File getFile() { return this.file; }
     }
 
-    public List<File> listFiles() {
-        ListerRunnable runnable = new ListerRunnable(this.db, this.uid, this.type);
+    private class UpdaterRunnable implements Runnable {
+        private AppDatabase db;
+        private File file;
+
+        public UpdaterRunnable(AppDatabase db, File file) {
+            this.db = db;
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            this.db.meetingDao().updateFile(this.file);
+        }
+    }
+
+    public List<File> listFiles(String uid, String[] types) {
+        ListerRunnable runnable = new ListerRunnable(this.db, uid, types);
         Thread thread = new Thread(runnable);
         thread.start();
         try {
@@ -84,25 +102,49 @@ public class FileAccessor {
             return runnable.listFiles();
         }
         catch(Exception e) {
-            Log.e(tag, e.toString());
+            Log.e(tag, "listFiles: " + e.toString());
             return null;
         }
     }
 
-    public void insertFile(File file) {
+    public List<File> listFiles(String uid, String type) {
+        String[] types = new String[1];
+        types[0] = type;
+        ListerRunnable runnable = new ListerRunnable(this.db, uid, types);
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+            return runnable.listFiles();
+        }
+        catch(Exception e) {
+            Log.w(tag, "listFiles: " + e.toString());
+            return null;
+        }
+    }
+
+    public void insertFile(File file, ArrayAdapter<File> adapter) {
         InserterRunnable runnable = new InserterRunnable(this.db, file);
         Thread thread = new Thread(runnable);
         thread.start();
         try {
             thread.join();
+            adapter.add(file);
+            adapter.notifyDataSetChanged();
         }
         catch(Exception e) {
-            Log.e(this.tag, e.toString());
+            Log.e(this.tag, "insertFile: " +e.toString());
         }
     }
 
-    public String getFilePath(int uid) {
-        GetterRunnable runnable = new GetterRunnable(this.db, uid);
+    public void insertFileAsync(File file) {
+        InserterRunnable runnable = new InserterRunnable(this.db, file);
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
+    public String getFilePath(int uid, String meetingId) {
+        GetterRunnable runnable = new GetterRunnable(this.db, uid, meetingId);
         Thread thread = new Thread(runnable);
         thread.start();
         try {
@@ -110,8 +152,26 @@ public class FileAccessor {
             return runnable.getFile().path;
         }
         catch(Exception e) {
-            Log.e(this.tag, e.toString());
+            Log.w(this.tag, "getFilePath: " +e.toString());
             return null;
         }
+    }
+
+    public void updateFile(File file) {
+        UpdaterRunnable runnable = new UpdaterRunnable(this.db, file);
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+        }
+        catch(Exception e) {
+            Log.e(this.tag, "updateFile: " + e.toString());
+        }
+    }
+
+    public void updateFileAsync(File file) {
+        UpdaterRunnable runnable = new UpdaterRunnable(this.db, file);
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 }

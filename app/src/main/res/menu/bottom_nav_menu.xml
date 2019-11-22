@@ -16,4 +16,9 @@
         android:icon="@drawable/ic_insert_drive_file_black_24dp"
         android:title="@string/title_documents" />
 
+    <item
+        android:id="@+id/navigation_sharing"
+        android:icon="@drawable/ic_group_black_24dp"
+        android:title="@string/title_sharing" />
+
 </menu>
