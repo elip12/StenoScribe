@@ -7,22 +7,28 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.stenoscribe.AddPhotosActivity;
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
+import com.example.stenoscribe.ReadTranscriptionActivity;
 import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
 import com.example.stenoscribe.db.FileAccessor;
+import com.example.stenoscribe.db.FileOperator;
+import com.example.stenoscribe.ui.recordings.RecordingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.content.Intent;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.FileInputStream;
@@ -36,7 +42,9 @@ public class PhotosFragment extends Fragment {
     private PhotoAdapter adapter;
     private List<File> photos;
     private String meetingId;
-    private String lastRecordingId = null;
+    private int lastPhotoId = 0;
+    private String type = "photo";
+    private ListView listView;
     private PhotosViewModel photosViewModel;
 
     public class PhotoAdapter extends ArrayAdapter<File> {
@@ -59,43 +67,64 @@ public class PhotosFragment extends Fragment {
             item = items.get(position);
             if (item != null) {
                 image = v.findViewById(R.id.cameraIV);
-                //String titleString = "Recording " + item.uid;
-                //image.getDrawable();
+
             }
             return v;
         }
     }
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        photosViewModel =
-                ViewModelProviders.of(this).get(PhotosViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_photos, container, false);
-//        final TextView textView = root.findViewById(R.id.text_photos);
-//        photosViewModel.getText().observe(this, new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
 
-        image = root.findViewById(R.id.cameraIV);
-
+    public void configureFab(View root) {
         FloatingActionButton fab = root.findViewById(R.id.fab_photos);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "This lets you add a photo", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-
                 Intent intent = new Intent(view.getContext(), AddPhotosActivity.class);
-                // add extra with meeting Id
-                int meetingId = ((MeetingDetails)getActivity()).getUid();
+                String meetingId = ((MeetingDetails)getActivity()).getUid();
                 intent.putExtra("meetingId", meetingId);
                 view.getContext().startActivity(intent);
             }
         });
+    }
 
+    public void configurePullToRefresh(View root) {
+        final SwipeRefreshLayout pullToRefresh = root.findViewById(R.id.pull_to_refresh);
+        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                photos = accessor.listFiles(meetingId, type);
+                if(recordings.size() > 0)
+                    lastRecordingId = recordings.get(0).uid;
+                adapter.clear();
+                adapter.addAll(recordings);
+                adapter.notifyDataSetChanged();
+                pullToRefresh.setRefreshing(false);
+            }
+        });
+    }
+
+    public void configureListView() {
+        this.listView.setAdapter(this.adapter);
+
+    }
+
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+
+        View root = inflater.inflate(R.layout.fragment_photos, container, false);
+        //image = root.findViewById(R.id.cameraIV);
+        configureFab(root);
+
+        this.db = AppDatabase.getDatabase(root.getContext());
+        this.accessor = new FileAccessor(this.db);
+
+        this.photos = this.accessor.listFiles(this.meetingId, this.type);
+        if(this.photos.size() > 0)
+            this.lastPhotoId = this.photos.get(0).uid;
+        this.adapter = new PhotosFragment.PhotoAdapter(root.getContext(), R.layout.meetings_list_elem, photos);
+        this.listView = root.findViewById(R.id.photos_list);
+        configureListView();
+        configurePullToRefresh(root);
         return root;
     }
 
