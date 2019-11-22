@@ -105,4 +105,11 @@ public class MeetingDetails extends AppCompatActivity {
         this.actionBarText.setText(this.meeting.title);
 
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Intent i = new Intent(this, SpeechService.class);
+        stopService(i);
+    }
 }

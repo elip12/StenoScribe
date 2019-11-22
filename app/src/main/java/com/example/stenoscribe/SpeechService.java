@@ -27,12 +27,13 @@ public class SpeechService extends Service implements RecognitionListener {
     private SpeechRecognizer speech = null;
     private Intent intent;
     private final String TAG = "SPEECHSERVICE";
-    public MyBinder mBinder;
+    public MyBinder mBinder = new MyBinder();
     public String returnedText = "";
 
     @Override
     public int onStartCommand(Intent i, int flags, int startId) {
         Log.d(TAG, "service starting");
+        speech = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
         speech.setRecognitionListener(this);
         intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -55,6 +56,8 @@ public class SpeechService extends Service implements RecognitionListener {
 
     public void stopListening() {
         speech.stopListening();
+        speech.destroy();
+        speech = null;
     }
 
     @Override
@@ -69,13 +72,46 @@ public class SpeechService extends Service implements RecognitionListener {
     @Override
     public void onEndOfSpeech() {
         Log.i(TAG, "onEndOfSpeech");
-        speech.startListening(intent); // this restarts the thing so it records continuously
 
     }
     @Override
     public void onError(int errorCode) {
-
-        returnedText = "Error: " + errorCode;
+        String message;
+        switch (errorCode) {
+            case SpeechRecognizer.ERROR_AUDIO:
+                message = "Audio recording error";
+                break;
+            case SpeechRecognizer.ERROR_CLIENT:
+                message = "Client side error";
+                break;
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+                message = "Insufficient permissions";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK:
+                message = "Network error";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                message = "Network timeout";
+                break;
+            case SpeechRecognizer.ERROR_NO_MATCH:
+                message = "No match";
+                break;
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+                message = "RecognitionService busy";
+                speech.cancel();
+                break;
+            case SpeechRecognizer.ERROR_SERVER:
+                message = "error from server";
+                break;
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                message = "No speech input";
+                break;
+            default:
+                message = "Didn't understand, please try again.";
+                break;
+        }
+        Log.e(TAG, message);
+        speech.startListening(intent);
     }
     @Override
     public void onEvent(int arg0, Bundle arg1) {
@@ -94,14 +130,12 @@ public class SpeechService extends Service implements RecognitionListener {
         Log.i(TAG, "onResults");
         ArrayList<String> matches = results
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        String text = "";
-        for (String result : matches)
-            text += result + "\n";
-        returnedText += text;
+        returnedText += matches.get(0) + "\n";
+        speech.startListening(intent); // this restarts the thing so it records continuously
     }
     @Override
     public void onRmsChanged(float rmsdB) {
-        Log.i(TAG, "onRmsChanged: " + rmsdB);
+        //Log.i(TAG, "onRmsChanged: " + rmsdB);
 
     }
 

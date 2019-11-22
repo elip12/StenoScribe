@@ -57,9 +57,11 @@ public class RecordingsFragment extends Fragment {
     private final String type = "recording";
     private String TAG = "RECORDINGSFRAGMENT";
     private static final int REQUEST_RECORD_PERMISSION = 100;
+    private static final int REQUEST_INTERNET_PERMISSION = 101;
     private SpeechService speechService;
     private boolean isBound = false;
     private boolean recordingPermission = true;
+    private boolean internetPermission = true;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -148,6 +150,9 @@ public class RecordingsFragment extends Fragment {
         ActivityCompat.requestPermissions(getActivity(),
                         new String[]{Manifest.permission.RECORD_AUDIO},
                         REQUEST_RECORD_PERMISSION);
+        ActivityCompat.requestPermissions(getActivity(),
+                new String[]{Manifest.permission.INTERNET},
+                REQUEST_INTERNET_PERMISSION);
     }
 
     @Override
@@ -160,6 +165,12 @@ public class RecordingsFragment extends Fragment {
                     recordingPermission = true;
                 } else {
                     recordingPermission = false;
+                }
+            case REQUEST_INTERNET_PERMISSION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    internetPermission = true;
+                } else {
+                    internetPermission = false;
                 }
         }
     }
@@ -196,14 +207,15 @@ public class RecordingsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (!isBound) {
-                    if (!recordingPermission) {
+                    if (!recordingPermission || !internetPermission) {
                         Toast.makeText(getContext(), "Permission denied",
                                 Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        Intent i = new Intent(getContext(), SpeechService.class);
-                        getContext().startService(i);
-                        getContext().bindService(i, connection, Context.BIND_AUTO_CREATE);
+                        Intent i = new Intent(getActivity(), SpeechService.class);
+                        Log.d(TAG, "telling service to start");
+                        getActivity().startService(i);
+                        getActivity().bindService(i, connection, Context.BIND_AUTO_CREATE);
                         Snackbar.make(view, "Recording", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
@@ -211,12 +223,16 @@ public class RecordingsFragment extends Fragment {
                 else {
                     // stop listening for speech. should automatically process speech and append to returnedText
                     speechService.stopListening();
-                    getContext().unbindService(connection);
-                    Intent i = new Intent(getContext(), SpeechService.class);
-                    getActivity().stopService(i);
-
                     // get transcription from service
                     String transcription = speechService.returnedText;
+                    if (transcription.equals("")) {
+                        transcription = "No speech detected";
+                    }
+                    getContext().unbindService(connection);
+                    Intent i = new Intent(getActivity(), SpeechService.class);
+                    getActivity().stopService(i);
+                    Log.d(TAG, "unbound and stopped service");
+                    isBound = false;
 
                     // add new recording into database;
                     int uid = lastRecordingId + 1;
