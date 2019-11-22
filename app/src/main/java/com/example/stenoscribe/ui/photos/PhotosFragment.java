@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.stenoscribe.AddPhotosActivity;
+import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
 import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
@@ -88,6 +89,9 @@ public class PhotosFragment extends Fragment {
 //                        .setAction("Action", null).show();
 
                 Intent intent = new Intent(view.getContext(), AddPhotosActivity.class);
+                // add extra with meeting Id
+                int meetingId = ((MeetingDetails)getActivity()).getUid();
+                intent.putExtra("meetingId", meetingId);
                 view.getContext().startActivity(intent);
             }
         });
