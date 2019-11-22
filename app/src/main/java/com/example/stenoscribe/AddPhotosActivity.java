@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Button;
@@ -26,9 +27,11 @@ import android.provider.MediaStore;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.widget.Toast;
+import android.net.Uri;
 
 import com.example.stenoscribe.db.FileOperator;
 
@@ -37,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Locale;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,6 +57,10 @@ public class AddPhotosActivity extends AppCompatActivity {
     private FileOperator io;
 
     String imageFilePath;
+
+    String ImageDecode;
+
+    String[] FILE;
 
     private boolean isTakenFromCamera;
 
@@ -76,26 +84,6 @@ public class AddPhotosActivity extends AppCompatActivity {
 
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(takePictureIntent, 0);
-
-//                takePictureIntent.putExtra( MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
-//
-//                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-//                    startActivityForResult(takePictureIntent, 0);
-//
-//                    File imageFile = null;
-//                    try {
-//                        imageFile = getPictureFile();
-//                    } catch (IOException ex) {
-//                        Toast.makeText(AddPhotosActivity.this, "Photo file can't be created, please try again", Toast.LENGTH_SHORT).show();
-//                        return;
-//                    }
-//                    if (imageFile != null) {
-//                        Uri photoURI = FileProvider.getUriForFile(AddPhotosActivity.this,
-//                                "com.stenoscribe.android.fileprovider", imageFile);
-//                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-//                        startActivityForResult(takePictureIntent, 0);
-//                    }
-//                }
             }
         });
 
@@ -104,9 +92,11 @@ public class AddPhotosActivity extends AppCompatActivity {
             public void onClick(View view) {
 //                Snackbar.make(view, "Import photo from gallery", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(intent, 0);
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                //intent.setType("image/*");
+                //startActivityForResult(intent, 0);
+                //startActivityForResult(Intent.createChooser(i, "Select image"), 101);
+                startActivityForResult(intent, 101);
             }
         });
 
@@ -116,12 +106,35 @@ public class AddPhotosActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if(requestCode == 101 && resultCode == RESULT_OK && data != null){
+            Uri URI = data.getData();
 
-        Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-        saveInternalStorage(bitmap);
-        cameraImage.setImageBitmap(bitmap);
+            String[] FILE = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getContentResolver().query(URI, FILE, null, null, null);
+            cursor.moveToFirst();
 
-        Uri selectedImage = data.getData();
+            int columnIndex = cursor.getColumnIndex(FILE[0]);
+            ImageDecode = cursor.getString(columnIndex);
+            cursor.close();
+
+            galleryImage.setImageBitmap(BitmapFactory.decodeFile(ImageDecode));
+
+//            String path = getRealPathFromURI(uri);
+//            String name = getFileName(uri);
+
+//            try {
+//                saveGalInternalStorage(name, path);
+//            }catch (FileNotFoundException e){
+//                e.printStackTrace();
+//            }
+        }
+
+        else {
+            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            saveCamInternalStorage(bitmap);
+            cameraImage.setImageBitmap(bitmap);
+        }
+        //Uri selectedImage = data.getData();
 //        FileOperator filepath = io.child("Photo").child(selectedImage.getLastPathSegment());
 //        filepath.putFile(selectedImage).addSucessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 //            @Override
@@ -158,7 +171,7 @@ public class AddPhotosActivity extends AppCompatActivity {
 //
 //        galleryImage.setImageBitmap(BitmapFactory.decodeFile(picturePath));
 
-    private String saveInternalStorage(Bitmap bitmapImage){
+    private String saveCamInternalStorage(Bitmap bitmapImage){
         //io.getApplicationContext();
         ContextWrapper cw = new ContextWrapper(getApplicationContext());
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
@@ -175,4 +188,51 @@ public class AddPhotosActivity extends AppCompatActivity {
         }
         return directory.getAbsolutePath();
     }
+
+//    private String getRealPathFromURI(Context context, URI uri){
+//        String[] proj = (MediaStore.Images.Media.DATA);
+//        Cursor cursor = context.getContentResolver().query(uri, proj, null, null, null);
+//
+//        if(cursor != null){
+//            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//            cursor.moveToFirst();
+//            return cursor.getString(column_index);
+//        }
+//
+//        return null;
+//    }
+//
+//    private String getFileName(URI uri){
+//        String result = null;
+//        if(uri.getScheme().equals("content")){
+//            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+//            try{
+//                if(cursor != null && cursor.moveToFirst()){
+//                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+//                }
+//            }finally {
+//                cursor.close();
+//            }
+//        }
+//
+//        if(result == null){
+//            result = uri.getPath();
+//            int cut = result.lastIndexOf('/');
+//            if(cut != -1){
+//                result = result.substring(cut+1);
+//            }
+//        }
+//        return result;
+//    }
+
+//    private void saveGalInternalStorage(String name, String path){
+//        FileOutputStream fos = openFileOutput(name, MODE_APPEND);
+//
+//        File file = new File(path);
+//        byte[] bytes = getBytesFromFile(file);
+//    }
+//
+//    private byte[] getBytesFromFile(File file){
+//        byte[] data;
+//    }
 }
