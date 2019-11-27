@@ -16,4 +16,6 @@
     <string name="no_internet">No internet connection</string>
     <string name="sign_in_failed">Sign in failed</string>
     <string name="title_sharing">Sharing</string>
+    <string name="channel_name">StenoScribe Recording</string>
+    <string name="channel_description">StenoScribe is currently recording audio</string>
 </resources>

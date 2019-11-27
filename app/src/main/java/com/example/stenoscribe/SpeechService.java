@@ -2,12 +2,18 @@ package com.example.stenoscribe;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.speech.RecognitionListener;
@@ -29,6 +35,44 @@ public class SpeechService extends Service implements RecognitionListener {
     private final String TAG = "SPEECHSERVICE";
     public MyBinder mBinder = new MyBinder();
     public String returnedText = "";
+    private final String CHANNEL_ID = "channel_recording";
+    private final int NOTIFICATION_ID = 0;
+    NotificationManagerCompat notificationManager;
+
+    private void createTimerNotification(String text) {
+
+        // Create notification with various properties
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .build();
+
+        // Get compatibility NotificationManager
+        notificationManager = NotificationManagerCompat.from(this);
+
+        // Post notification using ID.  If same ID, this notification replaces previous one
+        notificationManager.notify(NOTIFICATION_ID, notification);
+    }
+
+
+    private void createTimerNotificationChannel() {
+        if (Build.VERSION.SDK_INT < 26) {
+            return;
+        }
+
+        CharSequence name = getString(R.string.channel_name);
+        String description = getString(R.string.channel_description);
+        int importance = NotificationManager.IMPORTANCE_LOW;
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+        channel.setDescription(description);
+
+        // Register channel with system
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
+    }
+
 
     @Override
     public int onStartCommand(Intent i, int flags, int startId) {
@@ -41,9 +85,9 @@ public class SpeechService extends Service implements RecognitionListener {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
 
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
-
-
         speech.startListening(intent);
+        createTimerNotificationChannel();
+        createTimerNotification("Recording Audio");
 
         return START_STICKY;
     }
@@ -58,6 +102,7 @@ public class SpeechService extends Service implements RecognitionListener {
         speech.stopListening();
         speech.destroy();
         speech = null;
+        notificationManager.cancel(NOTIFICATION_ID);
     }
 
     @Override
