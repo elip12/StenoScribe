@@ -66,6 +66,7 @@ public class PhotosFragment extends Fragment {
         public View getView(int position, View v, ViewGroup parent) {
             final File item;
             final ImageView images;
+            final String image;
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -74,7 +75,7 @@ public class PhotosFragment extends Fragment {
             item = items.get(position);
             if (item != null) {
                 images = v.findViewById(R.id.imageView);
-                //images.setImage
+                images.setImageBitmap(BitmapFactory.decodeFile("items.path"));
             }
             return v;
         }
@@ -88,6 +89,8 @@ public class PhotosFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), AddPhotosActivity.class);
                 String meetingId = ((MeetingDetails)getActivity()).getUid();
+//                int uid = RecordingsFragment.this.recordings.get(position).uid;
+//                String path = RecordingsFragment.this.accessor.getFilePath(uid, meetingId);
                 intent.putExtra("meetingId", meetingId);
                 view.getContext().startActivity(intent);
             }
@@ -112,7 +115,6 @@ public class PhotosFragment extends Fragment {
 
     public void configureListView() {
         this.listView.setAdapter(this.adapter);
-
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
