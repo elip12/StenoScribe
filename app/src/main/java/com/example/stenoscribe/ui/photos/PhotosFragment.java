@@ -3,7 +3,9 @@ package com.example.stenoscribe.ui.photos;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,10 +32,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.content.Intent;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import static android.app.Activity.RESULT_OK;
 
 public class PhotosFragment extends Fragment {
     private ImageView image;
@@ -93,10 +100,10 @@ public class PhotosFragment extends Fragment {
             @Override
             public void onRefresh() {
                 photos = accessor.listFiles(meetingId, type);
-                if(recordings.size() > 0)
-                    lastRecordingId = recordings.get(0).uid;
+                if(photos.size() > 0)
+                    lastPhotoId = photos.get(0).uid;
                 adapter.clear();
-                adapter.addAll(recordings);
+                adapter.addAll(photos);
                 adapter.notifyDataSetChanged();
                 pullToRefresh.setRefreshing(false);
             }
@@ -110,39 +117,60 @@ public class PhotosFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
+        this.meetingId = ((MeetingDetails)getActivity()).getUid();
         View root = inflater.inflate(R.layout.fragment_photos, container, false);
         //image = root.findViewById(R.id.cameraIV);
-        configureFab(root);
-
         this.db = AppDatabase.getDatabase(root.getContext());
         this.accessor = new FileAccessor(this.db);
+        configureFab(root);
 
         this.photos = this.accessor.listFiles(this.meetingId, this.type);
         if(this.photos.size() > 0)
             this.lastPhotoId = this.photos.get(0).uid;
         this.adapter = new PhotosFragment.PhotoAdapter(root.getContext(), R.layout.meetings_list_elem, photos);
         this.listView = root.findViewById(R.id.photos_list);
-        configureListView();
+        this.configureListView();
         configurePullToRefresh(root);
         return root;
     }
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 //        Bitmap bitmap = (Bitmap) data.getExtras().get("data");
 //        image.setImageBitmap(bitmap);
 //
-////        Uri selectedImage = data.getData();
-////        FileOperator filepath = io.child("Photo").child(selectedImage.getLastPathSegment());
-////        filepath.putFile(selectedImage).addSucessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-////            @Override
-////            public void onSuccess(UploadTask.TaskSnapshot takeSnapshot) {
-////                Toast.makeText(AddPhotosActivity.this, "Uploading finished", Toast.LENGTH_SHORT).show();
-////            }
-////        });
-//    }
+//        Uri selectedImage = data.getData();
+//        FileOperator filepath = io.child("Photo").child(selectedImage.getLastPathSegment());
+//        filepath.putFile(selectedImage).addSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot takeSnapshot) {
+//                Toast.makeText(AddPhotosActivity.this, "Uploading finished", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+        final int PHOTO_CODE = 3;
+
+        switch (requestCode) {
+            case PHOTO_CODE: {
+                if (resultCode == RESULT_OK && data != null) {
+                    int uid = this.lastPhotoId + 1;
+                    ArrayList<String> result = data.getStringArrayListExtra(
+                            RecognizerIntent.EXTRA_RESULTS);
+                    String image = result.get(0);
+                    File file = new File(uid, this.meetingId, image, this.type);
+                    this.accessor.insertFile(file, adapter);
+                    photos = accessor.listFiles(meetingId, type);
+                    if(photos.size() > 0)
+                        lastPhotoId = photos.get(0).uid;
+                    adapter.clear();
+                    adapter.addAll(photos);
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+            }
+        }
+    }
 
 //    private void loadImageFromStorage(String path)
 //    {
