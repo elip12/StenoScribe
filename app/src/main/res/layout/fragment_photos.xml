@@ -16,31 +16,18 @@
         <ListView
             android:id="@+id/photos_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/cameraIV"
-                android:layout_width="match_parent"
-                android:layout_height="391dp"
-                android:contentDescription="@string/example"
-                android:visibility="visible"
-                app:srcCompat="@android:drawable/ic_menu_gallery" />
-        </ListView>
+            android:layout_height="wrap_content"/>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_photos"
-        android:layout_width="5dp"
-        android:layout_height="11dp"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentBottom="false"
-        android:layout_marginBottom="-11dp"
-        android:clickable="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="@dimen/bottom_navigation_margin"
         app:srcCompat="@drawable/ic_add_black_24dp" />
-
 </RelativeLayout>
 
 

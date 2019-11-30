@@ -43,7 +43,7 @@ import java.util.Locale;
 import static android.app.Activity.RESULT_OK;
 
 public class PhotosFragment extends Fragment {
-    private ImageView image;
+    //private ImageView image;
     private AppDatabase db;
     private FileAccessor accessor;
     private PhotoAdapter adapter;
@@ -73,8 +73,8 @@ public class PhotosFragment extends Fragment {
             }
             item = items.get(position);
             if (item != null) {
-                image = v.findViewById(R.id.cameraIV);
-
+                images = v.findViewById(R.id.imageView);
+                //images.setImage
             }
             return v;
         }

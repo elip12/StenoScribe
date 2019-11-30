@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import com.example.stenoscribe.ui.photos.PhotosFragment;
+import com.example.stenoscribe.MeetingDetails;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.stenoscribe.R;
 import android.view.View;
@@ -50,8 +51,6 @@ public class AddPhotosActivity extends AppCompatActivity {
     ImageView cameraImage;
     ImageView galleryImage;
 
-    private Uri mImageCaptureUri;
-
     private FileOperator io;
 
     String imageFilePath;
@@ -61,10 +60,10 @@ public class AddPhotosActivity extends AppCompatActivity {
     String[] FILE;
 
     private FileAccessor accessor;
+    //private PhotoAdapter adapter;
+    private List<File> photos;
 
     //private PhotoAdapter adapter2;
-
-    private List<File> photos;
 
     private int lastPhotoId = 0;
     private String type = "photo";
@@ -81,6 +80,7 @@ public class AddPhotosActivity extends AppCompatActivity {
         cameraImage = findViewById(R.id.cameraIV);
         galleryImage = findViewById(R.id.galleryIV);
         this.io = new FileOperator(getApplicationContext());
+        this.meetingId = getIntent().getExtras().getString("meetingId");;
 
         cam.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,10 +122,8 @@ public class AddPhotosActivity extends AppCompatActivity {
             cursor.close();
 
             int uid = this.lastPhotoId+1;
-            //this.meetingId = ((MeetingDetails)getActivity()).getUid();
-            //String meetingId = "00000000-1111-2222-3333-444444444444";
             File file = new File(uid, meetingId, ImageDecode, type);
-            //accessor.insertFile(file, photos);
+            accessor.insertFileAsync(file);
             //galleryImage.setImageBitmap(BitmapFactory.decodeFile(ImageDecode));
 
 //            String path = getRealPathFromURI(uri);
@@ -142,15 +140,13 @@ public class AddPhotosActivity extends AppCompatActivity {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
             //saveCamInternalStorage(bitmap);
             int uid = this.lastPhotoId+1;
-            //this.meetingId = ((MeetingDetails)getActivity()).getUid();
-            //String meetingId = "00000000-1111-2222-3333-444444444444";
             String bm = bitmap.toString();
             File file = new File(uid, meetingId, bm, type);
             // create FileAcessor obj;
             //replace :
             //cameraImage.setImageBitmap(bitmap);
             // with
-            //accessor.insertFile(file, photos);
+            accessor.insertFileAsync(file);
         }
     }
 
