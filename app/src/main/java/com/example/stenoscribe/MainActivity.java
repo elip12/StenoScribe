@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+       /* if (id == R.id.action_settings) {
             return true;
         }
         else if (id == R.id.sync_local_firebase) {
@@ -211,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
         else if (id == R.id.logout) {
             logout();
         }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }

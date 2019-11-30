@@ -18,4 +18,7 @@
     <string name="title_sharing">Sharing</string>
     <string name="channel_name">StenoScribe Recording</string>
     <string name="channel_description">StenoScribe is currently recording audio</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
