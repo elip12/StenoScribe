@@ -152,11 +152,6 @@ public class RecordingsFragment extends Fragment {
                 }
                 else {
                     // stop listening for speech. should automatically process speech and append to returnedText
-                    try {
-                        Thread.sleep(2000);
-                    } catch (Exception e) {
-                        Log.w(TAG, "Sleeping failed");
-                    }
                     speechService.stopListening();
                     // get transcription from service
                     String transcription = speechService.returnedText;
@@ -171,6 +166,7 @@ public class RecordingsFragment extends Fragment {
 
                     // add new recording into database;
                     int uid = lastRecordingId + 1;
+                    Log.d(TAG, "UID " + uid);
                     File file = new File(uid, meetingId, transcription, type);
                     accessor.insertFile(file, adapter);
                     recordings = accessor.listFiles(meetingId, type);

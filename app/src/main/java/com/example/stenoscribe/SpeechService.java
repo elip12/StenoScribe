@@ -68,7 +68,7 @@ public class SpeechService extends Service implements RecognitionListener {
     // start listening for audio
     @Override
     public int onStartCommand(Intent i, int flags, int startId) {
-        Log.d(TAG, "service starting");
+        //Log.d(TAG, "service starting");
         speech = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
         speech.setRecognitionListener(this);
         intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);

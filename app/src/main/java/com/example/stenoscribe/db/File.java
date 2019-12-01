@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 // File object for storing recordings, documents, and photos
-@Entity(primaryKeys = {"uid", "meeting_id"})
+@Entity(primaryKeys = {"uid", "meeting_id", "type"})
 public class File {
 
     public File(int uid, String meeting_id, String path, String type) {
