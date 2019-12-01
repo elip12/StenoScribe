@@ -95,7 +95,9 @@ public class PhotosFragment extends Fragment {
                 String meetingId = ((MeetingDetails)getActivity()).getUid();
 //                int uid = RecordingsFragment.this.recordings.get(position).uid;
 //                String path = RecordingsFragment.this.accessor.getFilePath(uid, meetingId);
+                //lastPhotoId++:
                 intent.putExtra("meetingId", meetingId);
+                intent.putExtra("lastPhotoId", lastPhotoId);
                 view.getContext().startActivity(intent);
             }
         });

@@ -10,6 +10,7 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.os.Environment;
 import android.provider.OpenableColumns;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ import com.example.stenoscribe.db.File;
 import com.example.stenoscribe.db.FileAccessor;
 import com.example.stenoscribe.db.FileOperator;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.util.List;
 import java.util.ArrayList;
@@ -86,7 +88,7 @@ public class AddPhotosActivity extends AppCompatActivity {
         galleryImage = findViewById(R.id.galleryIV);
         this.io = new FileOperator(getApplicationContext());
         this.meetingId = getIntent().getExtras().getString("meetingId");
-        this.uid = this.lastPhotoId+1;
+        this.lastPhotoId = getIntent().getExtras().getInt("lastPhotoId");
         images = findViewById(R.id.imageView);
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
@@ -131,6 +133,7 @@ public class AddPhotosActivity extends AppCompatActivity {
             ImageDecode = cursor.getString(columnIndex);
             cursor.close();
 
+            uid = this.lastPhotoId +1;
             file = new File(uid, meetingId, ImageDecode, type);
 
             if(file == null){
@@ -138,8 +141,6 @@ public class AddPhotosActivity extends AppCompatActivity {
             }
             else{
                 accessor.insertFileAsync(file);
-                lastPhotoId++;
-                meetingId = getIntent().getExtras().getString("meetingId");
             }
             //galleryImage.setImageBitmap(BitmapFactory.decodeFile(ImageDecode));
 
@@ -158,7 +159,9 @@ public class AddPhotosActivity extends AppCompatActivity {
 
             //images.setImageBitmap(bitmap);
             //saveCamInternalStorage(bitmap);
-            String bm = bitmap.toString();
+            //String bm = bitmap.toString();
+            String bm = BitMapToString(bitmap);
+            uid = this.lastPhotoId +1;
             file = new File(uid, meetingId, bm, type);
             // create FileAcessor obj;
             //replace :
@@ -171,8 +174,6 @@ public class AddPhotosActivity extends AppCompatActivity {
             }
             else{
                 accessor.insertFileAsync(file);
-                lastPhotoId++;
-                meetingId = getIntent().getExtras().getString("meetingId");
             }
         }
 
@@ -190,6 +191,15 @@ public class AddPhotosActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        String temp= Base64.encodeToString(b, Base64.DEFAULT);
+        return temp;
+    }
+
 //    private String saveCamInternalStorage(Bitmap bitmapImage){
 //        io.getApplicationContext();
 //        //ContextWrapper cw = new ContextWrapper(getApplicationContext());
