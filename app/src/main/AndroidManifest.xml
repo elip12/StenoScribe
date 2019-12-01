@@ -16,22 +16,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-<<<<<<< HEAD
+        <activity android:name=".ui.documents.DocumentCreator"></activity>
+
         <service
             android:name=".SpeechService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-=======
-        <activity android:name=".ui.documents.DocumentCreator"></activity>
->>>>>>> 5b5bdca871f88e2e22cef357562c2f2addb95c91
         <activity
             android:name=".ReadTranscriptionActivity"
             android:parentActivityName=".MeetingDetails" />
@@ -46,8 +46,6 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
-
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.stenoscribe.MainActivity" />
