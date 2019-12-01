@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException;
 import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -59,8 +60,8 @@ public class AddPhotosActivity extends AppCompatActivity {
 
     String[] FILE;
 
+    private AppDatabase db;
     private FileAccessor accessor;
-    //private PhotoAdapter adapter;
     private List<File> photos;
 
     //private PhotoAdapter adapter2;
@@ -85,6 +86,9 @@ public class AddPhotosActivity extends AppCompatActivity {
         this.io = new FileOperator(getApplicationContext());
         this.meetingId = getIntent().getExtras().getString("meetingId");;
         images = findViewById(R.id.imageView);
+
+        this.db = AppDatabase.getDatabase(getApplicationContext());
+        this.accessor = new FileAccessor(this.db);
 
         cam.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,7 +153,7 @@ public class AddPhotosActivity extends AppCompatActivity {
         else if(requestCode == 0 && data != null && resultCode != RESULT_CANCELED){
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
 
-            images.setImageBitmap(bitmap);
+            //images.setImageBitmap(bitmap);
             //saveCamInternalStorage(bitmap);
             int uid = this.lastPhotoId+1;
             String bm = bitmap.toString();
@@ -174,6 +178,14 @@ public class AddPhotosActivity extends AppCompatActivity {
         }
     }
 
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(item.getItemId() == android.R.id.home){
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 //    private String saveCamInternalStorage(Bitmap bitmapImage){
 //        io.getApplicationContext();
 //        //ContextWrapper cw = new ContextWrapper(getApplicationContext());
