@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,12 +71,15 @@ public class PhotosFragment extends Fragment {
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = vi.inflate(R.layout.meetings_list_elem, null);
+                v = vi.inflate(R.layout.photo_list_elem, null);
             }
             item = items.get(position);
+            Bitmap bitmap = StringToBitMap(item.path);
             if (item != null) {
                 images = v.findViewById(R.id.imageView);
-                images.setImageBitmap(BitmapFactory.decodeFile("items.path"));
+                //images.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 120, 120, false));
+                images.setImageBitmap(bitmap);
+                images.setAdjustViewBounds(true);
             }
             return v;
         }
@@ -95,6 +99,33 @@ public class PhotosFragment extends Fragment {
                 view.getContext().startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        final int PHOTO_CODE = 3;
+
+        switch (requestCode) {
+            case PHOTO_CODE: {
+                if (resultCode == RESULT_OK && data != null) {
+                    int uid = this.lastPhotoId + 1;
+                    ArrayList<String> result = data.getStringArrayListExtra(
+                            RecognizerIntent.EXTRA_RESULTS);
+                    String image = result.get(0);
+                    File file = new File(uid, this.meetingId, image, this.type);
+                    this.accessor.insertFile(file, adapter);
+                    photos = accessor.listFiles(meetingId, type);
+                    if(photos.size() > 0)
+                        lastPhotoId = photos.get(0).uid;
+                    adapter.clear();
+                    adapter.addAll(photos);
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+            }
+        }
     }
 
     public void configurePullToRefresh(View root) {
@@ -136,41 +167,17 @@ public class PhotosFragment extends Fragment {
         return root;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-//        Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-//        image.setImageBitmap(bitmap);
-//
-//        Uri selectedImage = data.getData();
-//        FileOperator filepath = io.child("Photo").child(selectedImage.getLastPathSegment());
-//        filepath.putFile(selectedImage).addSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot takeSnapshot) {
-//                Toast.makeText(AddPhotosActivity.this, "Uploading finished", Toast.LENGTH_SHORT).show();
-//            }
-//        });
 
-        final int PHOTO_CODE = 3;
 
-        switch (requestCode) {
-            case PHOTO_CODE: {
-                if (resultCode == RESULT_OK && data != null) {
-                    int uid = this.lastPhotoId + 1;
-                    ArrayList<String> result = data.getStringArrayListExtra(
-                            RecognizerIntent.EXTRA_RESULTS);
-                    String image = result.get(0);
-                    File file = new File(uid, this.meetingId, image, this.type);
-                    this.accessor.insertFile(file, adapter);
-                    photos = accessor.listFiles(meetingId, type);
-                    if(photos.size() > 0)
-                        lastPhotoId = photos.get(0).uid;
-                    adapter.clear();
-                    adapter.addAll(photos);
-                    adapter.notifyDataSetChanged();
-                }
-                break;
-            }
+    public Bitmap StringToBitMap(String encodedString){
+        try{
+            byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        }
+        catch(Exception e){
+            e.getMessage();
+            return null;
         }
     }
 

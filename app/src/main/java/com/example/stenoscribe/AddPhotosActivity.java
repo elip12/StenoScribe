@@ -66,10 +66,11 @@ public class AddPhotosActivity extends AppCompatActivity {
 
     //private PhotoAdapter adapter2;
 
-    private int lastPhotoId = 0;
+    private int lastPhotoId;
     private String type = "photo";
     private String meetingId;
     private File file;
+    private int uid;
 
     ImageView images;
 
@@ -84,7 +85,8 @@ public class AddPhotosActivity extends AppCompatActivity {
         cameraImage = findViewById(R.id.cameraIV);
         galleryImage = findViewById(R.id.galleryIV);
         this.io = new FileOperator(getApplicationContext());
-        this.meetingId = getIntent().getExtras().getString("meetingId");;
+        this.meetingId = getIntent().getExtras().getString("meetingId");
+        this.uid = this.lastPhotoId+1;
         images = findViewById(R.id.imageView);
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
@@ -129,7 +131,6 @@ public class AddPhotosActivity extends AppCompatActivity {
             ImageDecode = cursor.getString(columnIndex);
             cursor.close();
 
-            int uid = this.lastPhotoId+1;
             file = new File(uid, meetingId, ImageDecode, type);
 
             if(file == null){
@@ -137,6 +138,8 @@ public class AddPhotosActivity extends AppCompatActivity {
             }
             else{
                 accessor.insertFileAsync(file);
+                lastPhotoId++;
+                meetingId = getIntent().getExtras().getString("meetingId");
             }
             //galleryImage.setImageBitmap(BitmapFactory.decodeFile(ImageDecode));
 
@@ -155,7 +158,6 @@ public class AddPhotosActivity extends AppCompatActivity {
 
             //images.setImageBitmap(bitmap);
             //saveCamInternalStorage(bitmap);
-            int uid = this.lastPhotoId+1;
             String bm = bitmap.toString();
             file = new File(uid, meetingId, bm, type);
             // create FileAcessor obj;
@@ -169,6 +171,8 @@ public class AddPhotosActivity extends AppCompatActivity {
             }
             else{
                 accessor.insertFileAsync(file);
+                lastPhotoId++;
+                meetingId = getIntent().getExtras().getString("meetingId");
             }
         }
 
