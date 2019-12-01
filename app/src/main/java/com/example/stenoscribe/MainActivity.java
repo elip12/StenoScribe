@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         this.setToolbarTitle();
 
         // delete database on restart
-        getApplicationContext().deleteDatabase("stenoscribe");
+        //getApplicationContext().deleteDatabase("stenoscribe");
 
         this.db = AppDatabase.getDatabase(getApplicationContext());
         this.accessor = new MeetingAccessor(this.db);
