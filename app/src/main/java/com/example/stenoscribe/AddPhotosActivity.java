@@ -28,6 +28,8 @@ import com.google.android.material.snackbar.Snackbar;
 import android.widget.ImageView;
 import android.content.Intent;
 import android.provider.MediaStore;
+import android.media.*;
+import android.media.MediaPlayer;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.content.Context;
@@ -41,13 +43,19 @@ import com.example.stenoscribe.db.File;
 import com.example.stenoscribe.db.FileAccessor;
 import com.example.stenoscribe.db.FileOperator;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class AddPhotosActivity extends AppCompatActivity {
+public class AddPhotosActivity extends AppCompatActivity  {
     TextView text;
     FloatingActionButton cam;
     FloatingActionButton gallery;
@@ -120,22 +128,30 @@ public class AddPhotosActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
 
         if(requestCode == 101 && data != null && resultCode != RESULT_CANCELED){
-            Uri URI = data.getData();
+//            Uri URI = data.getData();
+//
+//            String[] FILE = { MediaStore.Images.Media.DATA };
+//            Cursor cursor = getContentResolver().query(URI, FILE, null, null, null);
+//            cursor.moveToFirst();
+//
+//            int columnIndex = cursor.getColumnIndex(FILE[0]);
+//            ImageDecode = cursor.getString(columnIndex);
+//            cursor.close();
 
-            String[] FILE = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getContentResolver().query(URI, FILE, null, null, null);
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(FILE[0]);
-            ImageDecode = cursor.getString(columnIndex);
-            cursor.close();
+            //Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            //Bitmap bitmap = (Bitmap) data.getData();
+            Uri imageUri = data.getData();
+            Bitmap bitmap = decodeUriToBitmap(AddPhotosActivity.this, imageUri);
+            //bitmap = MediaStore.Images.Media.getBitmap(AddPhotosActivity.this.getContentResolver(), imageUri);
+            String bm = BitMapToString(bitmap);
 
             uid = this.lastPhotoId +1;
-            file = new File(uid, meetingId, ImageDecode, type);
+            //file = new File(uid, meetingId, ImageDecode, type);
 
+            file = new File(uid, meetingId, bm, type);
             if(file == null){
                 Toast.makeText(AddPhotosActivity.this, "File is null", Toast.LENGTH_LONG).show();
             }
@@ -200,6 +216,21 @@ public class AddPhotosActivity extends AppCompatActivity {
         return temp;
     }
 
+    public static Bitmap decodeUriToBitmap(Context mContext, Uri sendUri) {
+        Bitmap getBitmap = null;
+        try {
+            InputStream image_stream;
+            try {
+                image_stream = mContext.getContentResolver().openInputStream(sendUri);
+                getBitmap = BitmapFactory.decodeStream(image_stream);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return getBitmap;
+    }
 //    private String saveCamInternalStorage(Bitmap bitmapImage){
 //        io.getApplicationContext();
 //        //ContextWrapper cw = new ContextWrapper(getApplicationContext());
