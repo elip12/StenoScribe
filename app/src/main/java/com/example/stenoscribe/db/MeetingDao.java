@@ -7,6 +7,7 @@ import androidx.room.Update;
 import androidx.room.Delete;
 import java.util.List;
 
+// Meetign dao for Room Persistence Library ORM model
 @Dao
 public interface MeetingDao {
     // Meeting methods

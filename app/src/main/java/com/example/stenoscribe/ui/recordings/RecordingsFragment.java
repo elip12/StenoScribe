@@ -6,11 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.os.CountDownTimer;
 import android.os.IBinder;
-import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
-import android.content.ActivityNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +21,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.stenoscribe.MeetingDetails;
@@ -35,15 +30,10 @@ import com.example.stenoscribe.SpeechService;
 import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
 import com.example.stenoscribe.db.FileAccessor;
-import com.example.stenoscribe.db.FileOperator;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-
-import static android.app.Activity.RESULT_OK;
 
 public class RecordingsFragment extends Fragment {
     private AppDatabase db;
@@ -62,21 +52,23 @@ public class RecordingsFragment extends Fragment {
     private boolean isBound = false;
     private boolean recordingPermission = true;
     private boolean internetPermission = true;
+    // connection to service for recording
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             SpeechService.MyBinder binder = (SpeechService.MyBinder) service;
             speechService = binder.getService();
-            Log.d(TAG, "Connected to service");
+            //Log.d(TAG, "Connected to service");
             isBound = true;
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             isBound = false;
-            Log.d(TAG, "Disconnected to service");
+            //Log.d(TAG, "Disconnected to service");
         }
     };
 
+    // recording adapter for displaying recordings
     public class RecordingAdapter extends ArrayAdapter<File> {
         private List<File> items;
 
@@ -107,44 +99,7 @@ public class RecordingsFragment extends Fragment {
         }
     }
 
-//    public void startRecording(View view) {
-//        int SPEECH_CODE = 3;
-//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-//                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-//
-//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
-//        try {
-//            startActivityForResult(intent, SPEECH_CODE);
-//
-//            // TEST CODE FOR SPEECH RECOGNIZER NOT USING ACTIVITY
-////            final SpeechRecognizer sr = SpeechRecognizer.createSpeechRecognizer(getContext());
-////            sr.startListening(intent);
-////            new CountDownTimer(2000, 1000) {
-////
-////                public void onTick(long millisUntilFinished) {
-////                    //do nothing, just let it tick
-////                }
-////
-////                public void onFinish() {
-////                    sr.stopListening();
-////                }
-////            }.start();
-//
-//            // TEST CODE FOR MOCKING FILE INSERTION
-////            int id = this.lastRecordingId + 1;
-////            File f = new File(id, this.meetingId, "tempfile" + id + ".txt", this.type);
-////            this.accessor.insertFile(f);
-////            this.io.store("tempfile" + id + ".txt", "This is an example transcription.");
-//        } catch (ActivityNotFoundException a) {
-//            Snackbar.make(view,
-//                    "Speech-to-text not supported on your device",
-//                    Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show();
-//        }
-//    }
-
+    // requests permissions needed for recording
     public void requestPermissions() {
         Log.d(TAG, "requestPermission");
         ActivityCompat.requestPermissions(getActivity(),
@@ -175,6 +130,7 @@ public class RecordingsFragment extends Fragment {
         }
     }
 
+    // configures FAB for starting and stopping recording.
     public void configureFab(View root) {
         this.fab = root.findViewById(R.id.fab_recordings);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -230,6 +186,7 @@ public class RecordingsFragment extends Fragment {
         });
     }
 
+    // configures list view or clickable recordings
     public void configureListView() {
         this.listView.setAdapter(this.adapter);
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -245,6 +202,7 @@ public class RecordingsFragment extends Fragment {
         });
     }
 
+    // configures pull to refresh for manual refresh
     public void configurePullToRefresh(View root) {
         final SwipeRefreshLayout pullToRefresh = root.findViewById(R.id.pull_to_refresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -261,10 +219,10 @@ public class RecordingsFragment extends Fragment {
         });
     }
 
+    // instantiates everything and shows listview
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         this.meetingId = ((MeetingDetails)getActivity()).getUid();
-//        this.recordingsViewModel = ViewModelProviders.of(this).get(RecordingsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_recordings, container, false);
 
         this.db = AppDatabase.getDatabase(root.getContext());

@@ -2,7 +2,6 @@ package com.example.stenoscribe;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -37,13 +36,13 @@ public class MainActivity extends AppCompatActivity {
     private AppDatabase db;
     private MeetingAccessor accessor;
     private FirebaseAccessor firebaseAccessor;
-    private int lastMeetingUID = 0;
     private List<Meeting> meetings;
     private FloatingActionButton fab;
     private MeetingAdapter adapter;
     private ListView listView;
     FirebaseUser user;
 
+    // Meeting list adapter for displaying custom meeting elements.
     public class MeetingAdapter extends ArrayAdapter<Meeting> {
         private List<Meeting> items;
 
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             this.items = items;
         }
 
+        // Displays the meeting title and date
         @Override
         public View getView(int position, View v, ViewGroup parent) {
             final Meeting item;
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // sets the action bar title
     public void setToolbarTitle() {
         final Toolbar toolbar;
 
@@ -81,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(R.string.saved_meetings);
     }
 
+    // configures the floating action button.
+    // on click, creates a meeting, inserts it into the db,
+    // then starts that meeting' s meeting details activity
     public void configureFab() {
         this.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,20 +96,23 @@ public class MainActivity extends AppCompatActivity {
                 meeting = new Meeting(uid);
                 intent = new Intent(view.getContext(), MeetingDetails.class);
                 intent.putExtra("uid", meeting.uid);
-                accessor.insertMeeting(meeting, adapter);
+                accessor.insertMeetingAsync(meeting);
                 view.getContext().startActivity(intent);
             }
         });
     }
 
+    // calls firebaseAccessor method to sync
     public void syncFirebaseToLocal() {
         this.firebaseAccessor.updateDB();
     }
 
+    // calls firebaseAccessor method to sync
     public void syncLocalToFirebase() {
         this.firebaseAccessor.updateFB();
     }
 
+    // configures the pull to refresh widget. refreshes meetings from db to listview
     public void configurePullToRefresh() {
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pull_to_refresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -120,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // firebase UI logout
     public void logout() {
         AuthUI.getInstance()
                 .signOut(this)
@@ -132,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    // gets db instance, creates db accessor (for easy db operations),
+    // configures fab, pull to refresh, and listview, and gets the current firebase user
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
     }
 
+    // sets the listview to have onclick listeners for clicking on meetings
     public void configureListView() {
         this.listView.setAdapter(this.adapter);
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -166,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // reinstantiates the db and acccessor if need be, and refreshes the listview
     @Override
     protected void onResume() {
         super.onResume();
@@ -182,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
+    // options menu in upper right corner
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -189,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    // options menu options
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -196,11 +210,7 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        else if (id == R.id.sync_local_firebase) {
+        if (id == R.id.sync_local_firebase) {
             syncLocalToFirebase();
             return true;
         }

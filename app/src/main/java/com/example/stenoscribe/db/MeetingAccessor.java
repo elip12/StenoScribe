@@ -6,10 +6,8 @@ import com.example.stenoscribe.MainActivity;
 
 import java.util.List;
 
-/*
-Add return values if insert, read, or update fails
- */
-
+// Meeting Accessor. Used for reading meetings from the database.
+// Similar to FileAccessor
 public class MeetingAccessor {
     private final AppDatabase db;
     private final String TAG = "DB_MEETINGACCESSOR";
@@ -18,6 +16,7 @@ public class MeetingAccessor {
         this.db = db;
     }
 
+    // runnables
     private class ListerRunnable implements Runnable {
         private AppDatabase db;
         private List<Meeting> meetings;
@@ -86,6 +85,7 @@ public class MeetingAccessor {
         }
     }
 
+    // methods
     public List<Meeting> listMeetings() {
         ListerRunnable runnable = new ListerRunnable(this.db);
         Thread thread = new Thread(runnable);

@@ -9,10 +9,9 @@ import com.example.stenoscribe.ui.recordings.RecordingsFragment;
 
 import java.util.List;
 
-/*
-Add return values if insert, read, or update fails
- */
-
+// Helper class for inserting files into DB easily.
+// Options for synchronously (when you need to see it in a list immediately)
+// and async (when you are directed to a new activity immediately)
 public class FileAccessor {
     private final AppDatabase db;
     private final String tag = "FILEACCESSOR";
@@ -21,6 +20,7 @@ public class FileAccessor {
         this.db = db;
     }
 
+    // a bunch of runnables, since each operation needs its own implementation of the run method.
     private class ListerRunnable implements Runnable {
         private AppDatabase db;
         private String uid;
@@ -93,6 +93,7 @@ public class FileAccessor {
         }
     }
 
+    // a bunch of database operations on files
     public List<File> listFiles(String uid, String[] types) {
         ListerRunnable runnable = new ListerRunnable(this.db, uid, types);
         Thread thread = new Thread(runnable);

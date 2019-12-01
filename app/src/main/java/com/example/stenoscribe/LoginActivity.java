@@ -12,6 +12,7 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 
+// This is almost entirely copied from the android documentation on FirebaseUI
 public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private static final String TAG = "LOGIN";
@@ -21,6 +22,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
+    // smart lock allows users to stay logged in. checks if user is logged in, if not directs to login
+    // activity
     public void onResume() {
         super.onResume();
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -38,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // checks response from server for login success, and logs in or not depending on that
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // RC_SIGN_IN is the request code you passed into startActivityForResult(...) when starting the sign in flow.

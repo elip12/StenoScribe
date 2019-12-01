@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import androidx.appcompat.app.AppCompatActivity;
 
+// deprecated. Keeping for records
 public class FileOperator extends AppCompatActivity{
     private Context context;
     private final String tag = "FILEOPERATOR";
