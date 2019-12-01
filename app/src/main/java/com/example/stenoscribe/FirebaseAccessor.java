@@ -134,7 +134,7 @@ public class FirebaseAccessor {
 
     // upserts a single file to firebase
     public void upsertFileAsync(File file) {
-        if (fileAccessor.getFilePath(file.uid, file.meeting_id) == null)
+        if (fileAccessor.getFilePath(file.uid, file.meeting_id, file.type) == null)
             fileAccessor.insertFileAsync(file);
         else
             fileAccessor.updateFileAsync(file);

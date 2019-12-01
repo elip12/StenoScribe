@@ -31,6 +31,8 @@ public class FileAccessor {
             this.db = db;
             this.uid = uid;
             this.types = types;
+            Log.d("METAG", "" + types.length);
+            Log.d("METAG", types[0]);
         }
 
         @Override
@@ -63,16 +65,18 @@ public class FileAccessor {
         private File file;
         private int uid;
         private String meetingId;
+        private String type;
 
-        public GetterRunnable(AppDatabase db, int uid, String meetingId) {
+        public GetterRunnable(AppDatabase db, int uid, String meetingId, String type) {
             this.db = db;
             this.uid = uid;
             this.meetingId = meetingId;
+            this.type = type;
         }
 
         @Override
         public void run() {
-            this.file = this.db.meetingDao().getFile(this.uid, this.meetingId);
+            this.file = this.db.meetingDao().getFile(this.uid, this.meetingId, this.type);
         }
 
         public File getFile() { return this.file; }
@@ -144,8 +148,8 @@ public class FileAccessor {
         thread.start();
     }
 
-    public String getFilePath(int uid, String meetingId) {
-        GetterRunnable runnable = new GetterRunnable(this.db, uid, meetingId);
+    public String getFilePath(int uid, String meetingId, String type) {
+        GetterRunnable runnable = new GetterRunnable(this.db, uid, meetingId, type);
         Thread thread = new Thread(runnable);
         thread.start();
         try {

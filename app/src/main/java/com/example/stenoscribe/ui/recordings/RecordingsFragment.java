@@ -189,7 +189,7 @@ public class RecordingsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
                 int uid = RecordingsFragment.this.recordings.get(position).uid;
-                String path = RecordingsFragment.this.accessor.getFilePath(uid, meetingId);
+                String path = RecordingsFragment.this.accessor.getFilePath(uid, meetingId, type);
                 final Intent intent = new Intent(getContext(), ReadTranscriptionActivity.class);
                 intent.putExtra("path", path);
                 intent.putExtra("meetingTitle", "Recording " + uid);
