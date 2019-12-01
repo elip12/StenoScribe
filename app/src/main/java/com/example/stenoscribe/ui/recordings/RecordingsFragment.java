@@ -175,32 +175,6 @@ public class RecordingsFragment extends Fragment {
         }
     }
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent i) {
-//        super.onActivityResult(requestCode, resultCode, i);
-//        final int SPEECH_CODE = 3;
-//
-//        switch (requestCode) {
-//            case SPEECH_CODE: {
-//                if (resultCode == RESULT_OK && i != null) {
-//                    int uid = this.lastRecordingId + 1;
-//                    ArrayList<String> result = i.getStringArrayListExtra(
-//                            RecognizerIntent.EXTRA_RESULTS);
-//                    String transcription = result.get(0);
-//                    File file = new File(uid, this.meetingId, transcription, this.type);
-//                    this.accessor.insertFile(file, adapter);
-//                    recordings = accessor.listFiles(meetingId, type);
-//                    if(recordings.size() > 0)
-//                        lastRecordingId = recordings.get(0).uid;
-//                    adapter.clear();
-//                    adapter.addAll(recordings);
-//                    adapter.notifyDataSetChanged();
-//                }
-//                break;
-//            }
-//        }
-//    }
-
     public void configureFab(View root) {
         this.fab = root.findViewById(R.id.fab_recordings);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -222,6 +196,11 @@ public class RecordingsFragment extends Fragment {
                 }
                 else {
                     // stop listening for speech. should automatically process speech and append to returnedText
+                    try {
+                        Thread.sleep(2000);
+                    } catch (Exception e) {
+                        Log.w(TAG, "Sleeping failed");
+                    }
                     speechService.stopListening();
                     // get transcription from service
                     String transcription = speechService.returnedText;
