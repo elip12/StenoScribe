@@ -68,6 +68,9 @@ public class AddPhotosActivity extends AppCompatActivity {
     private int lastPhotoId = 0;
     private String type = "photo";
     private String meetingId;
+    private File file;
+
+    ImageView images;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +84,7 @@ public class AddPhotosActivity extends AppCompatActivity {
         galleryImage = findViewById(R.id.galleryIV);
         this.io = new FileOperator(getApplicationContext());
         this.meetingId = getIntent().getExtras().getString("meetingId");;
+        images = findViewById(R.id.imageView);
 
         cam.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,6 +93,7 @@ public class AddPhotosActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
 
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
                 startActivityForResult(takePictureIntent, 0);
             }
         });
@@ -108,9 +113,8 @@ public class AddPhotosActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 101 && resultCode == RESULT_OK && data != null){
+        if(requestCode == 101 && data != null && resultCode != RESULT_CANCELED){
             Uri URI = data.getData();
 
             String[] FILE = { MediaStore.Images.Media.DATA };
@@ -122,8 +126,14 @@ public class AddPhotosActivity extends AppCompatActivity {
             cursor.close();
 
             int uid = this.lastPhotoId+1;
-            File file = new File(uid, meetingId, ImageDecode, type);
-            accessor.insertFileAsync(file);
+            file = new File(uid, meetingId, ImageDecode, type);
+
+            if(file == null){
+                Toast.makeText(AddPhotosActivity.this, "File is null", Toast.LENGTH_LONG).show();
+            }
+            else{
+                accessor.insertFileAsync(file);
+            }
             //galleryImage.setImageBitmap(BitmapFactory.decodeFile(ImageDecode));
 
 //            String path = getRealPathFromURI(uri);
@@ -136,17 +146,31 @@ public class AddPhotosActivity extends AppCompatActivity {
 //            }
         }
 
-        else {
+        else if(requestCode == 0 && data != null && resultCode != RESULT_CANCELED){
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+
+            images.setImageBitmap(bitmap);
             //saveCamInternalStorage(bitmap);
             int uid = this.lastPhotoId+1;
             String bm = bitmap.toString();
-            File file = new File(uid, meetingId, bm, type);
+            file = new File(uid, meetingId, bm, type);
             // create FileAcessor obj;
             //replace :
             //cameraImage.setImageBitmap(bitmap);
             // with
-            accessor.insertFileAsync(file);
+            //accessor.insertFileAsync(file);
+
+            if(file == null){
+                Toast.makeText(AddPhotosActivity.this, "File is null", Toast.LENGTH_LONG).show();
+            }
+            else{
+                accessor.insertFileAsync(file);
+            }
+        }
+
+        else{
+            //super.onActivityResult(requestCode, resultCode, data);
+            Toast.makeText(AddPhotosActivity.this, "Can not capture image", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -166,5 +190,13 @@ public class AddPhotosActivity extends AppCompatActivity {
 //            e.printStackTrace();
 //        }
 //        return directory.getAbsolutePath();
+//    }
+
+//    public Uri setImageUri() {
+//        // Store image in dcim
+//        File file = new File(Environment.getExternalStorageDirectory() + "/DCIM/", "image" + new Date().getTime() + ".png");
+//        Uri imgUri = Uri.fromFile(file);
+//        this.imgPath = file.getAbsolutePath();
+//        return imgUri;
 //    }
 }
