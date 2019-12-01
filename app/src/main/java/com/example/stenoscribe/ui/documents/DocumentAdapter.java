@@ -38,7 +38,7 @@ class DocumentAdapter extends ArrayAdapter {
         }
         File current_file = files.get(position);
         TextView file_title = (TextView) current_view.findViewById(R.id.document_title);
-        file_title.setText("Document");
+        file_title.setText("Document " + Integer.toString(position + 1));
         TextView file_date = (TextView) current_view.findViewById(R.id.document_date);
         file_date.setText(current_file.getDate());
         return current_view;

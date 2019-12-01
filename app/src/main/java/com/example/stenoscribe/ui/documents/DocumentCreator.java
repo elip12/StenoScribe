@@ -41,7 +41,7 @@ public class DocumentCreator extends AppCompatActivity {
                 // internet checker
                 if (true == true) {
                     // url checker
-                    if ( URLUtil.isValidUrl(url) == true) {
+                    if ( URLUtil.isValidUrl(url) == true ) {
                         uid++;
                         File new_file = new File(uid,meetingId,url,"document");
                         access.insertFileAsync(new_file);

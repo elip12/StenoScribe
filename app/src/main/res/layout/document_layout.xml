@@ -7,11 +7,13 @@
         android:id="@+id/document_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorGray"
         android:text="TextView" />
 
     <TextView
         android:id="@+id/document_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorGray"
         android:text="TextView" />
 </LinearLayout>
