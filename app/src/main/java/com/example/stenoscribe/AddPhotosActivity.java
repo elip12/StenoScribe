@@ -64,17 +64,9 @@ public class AddPhotosActivity extends AppCompatActivity  {
 
     private FileOperator io;
 
-    String imageFilePath;
-
-    String ImageDecode;
-
-    String[] FILE;
-
     private AppDatabase db;
     private FileAccessor accessor;
     private List<File> photos;
-
-    //private PhotoAdapter adapter2;
 
     private int lastPhotoId;
     private String type = "photo";
@@ -105,8 +97,6 @@ public class AddPhotosActivity extends AppCompatActivity  {
         cam.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Use camera to add picture", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
 
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
@@ -117,8 +107,6 @@ public class AddPhotosActivity extends AppCompatActivity  {
         gallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Import photo from gallery", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 //intent.setType("image/*");
                 startActivityForResult(intent, 101);
@@ -131,25 +119,11 @@ public class AddPhotosActivity extends AppCompatActivity  {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
 
         if(requestCode == 101 && data != null && resultCode != RESULT_CANCELED){
-//            Uri URI = data.getData();
-//
-//            String[] FILE = { MediaStore.Images.Media.DATA };
-//            Cursor cursor = getContentResolver().query(URI, FILE, null, null, null);
-//            cursor.moveToFirst();
-//
-//            int columnIndex = cursor.getColumnIndex(FILE[0]);
-//            ImageDecode = cursor.getString(columnIndex);
-//            cursor.close();
-
-            //Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-            //Bitmap bitmap = (Bitmap) data.getData();
             Uri imageUri = data.getData();
             Bitmap bitmap = decodeUriToBitmap(AddPhotosActivity.this, imageUri);
-            //bitmap = MediaStore.Images.Media.getBitmap(AddPhotosActivity.this.getContentResolver(), imageUri);
             String bm = BitMapToString(bitmap);
 
             uid = this.lastPhotoId +1;
-            //file = new File(uid, meetingId, ImageDecode, type);
 
             file = new File(uid, meetingId, bm, type);
             if(file == null){
@@ -158,32 +132,15 @@ public class AddPhotosActivity extends AppCompatActivity  {
             else{
                 accessor.insertFileAsync(file);
             }
-            //galleryImage.setImageBitmap(BitmapFactory.decodeFile(ImageDecode));
-
-//            String path = getRealPathFromURI(uri);
-//            String name = getFileName(uri);
-
-//            try {
-//                saveGalInternalStorage(name, path);
-//            }catch (FileNotFoundException e){
-//                e.printStackTrace();
-//            }
         }
 
         else if(requestCode == 0 && data != null && resultCode != RESULT_CANCELED){
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
 
             //images.setImageBitmap(bitmap);
-            //saveCamInternalStorage(bitmap);
-            //String bm = bitmap.toString();
             String bm = BitMapToString(bitmap);
             uid = this.lastPhotoId +1;
             file = new File(uid, meetingId, bm, type);
-            // create FileAcessor obj;
-            //replace :
-            //cameraImage.setImageBitmap(bitmap);
-            // with
-            //accessor.insertFileAsync(file);
 
             if(file == null){
                 Toast.makeText(AddPhotosActivity.this, "File is null", Toast.LENGTH_LONG).show();
@@ -231,29 +188,4 @@ public class AddPhotosActivity extends AppCompatActivity  {
         }
         return getBitmap;
     }
-//    private String saveCamInternalStorage(Bitmap bitmapImage){
-//        io.getApplicationContext();
-//        //ContextWrapper cw = new ContextWrapper(getApplicationContext());
-//        File directory = io.getDir("imageDir", Context.MODE_PRIVATE);
-//        File mypath=new File(directory,"profile.jpg");
-//
-//        FileOutputStream fos = null;
-//
-//        try {
-//            fos = new FileOutputStream(mypath);
-//            // Use the compress method on the BitMap object to write image to the OutputStream
-//            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return directory.getAbsolutePath();
-//    }
-
-//    public Uri setImageUri() {
-//        // Store image in dcim
-//        File file = new File(Environment.getExternalStorageDirectory() + "/DCIM/", "image" + new Date().getTime() + ".png");
-//        Uri imgUri = Uri.fromFile(file);
-//        this.imgPath = file.getAbsolutePath();
-//        return imgUri;
-//    }
 }

@@ -3,6 +3,7 @@ package com.example.stenoscribe.ui.photos;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -37,6 +38,7 @@ import android.widget.Toast;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -74,11 +76,14 @@ public class PhotosFragment extends Fragment {
                 v = vi.inflate(R.layout.photo_list_elem, null);
             }
             item = items.get(position);
-            Bitmap bitmap = StringToBitMap(item.path);
+            //Bitmap bitmap = StringToBitMap(item.path);
             if (item != null) {
                 images = v.findViewById(R.id.imageView);
                 //images.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 120, 120, false));
-                images.setImageBitmap(bitmap);
+                images.setRotation(getCameraPhotoOrientation(item.path));
+                Bitmap bitmap = StringToBitMap(item.path);
+                Bitmap bMapScaled = Bitmap.createScaledBitmap(bitmap, 120, 120, true);
+                images.setImageBitmap(bMapScaled);
                 images.setAdjustViewBounds(true);
             }
             return v;
@@ -93,9 +98,6 @@ public class PhotosFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), AddPhotosActivity.class);
                 String meetingId = ((MeetingDetails)getActivity()).getUid();
-//                int uid = RecordingsFragment.this.recordings.get(position).uid;
-//                String path = RecordingsFragment.this.accessor.getFilePath(uid, meetingId);
-                //lastPhotoId++:
                 intent.putExtra("meetingId", meetingId);
                 intent.putExtra("lastPhotoId", lastPhotoId);
                 view.getContext().startActivity(intent);
@@ -183,18 +185,35 @@ public class PhotosFragment extends Fragment {
         }
     }
 
-//    private void loadImageFromStorage(String path)
-//    {
-//
-//        try {
-//            File f=new File(path, "profile.jpg");
-//            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-//            image.setImageBitmap(b);
-//        }
-//        catch (FileNotFoundException e)
-//        {
-//            e.printStackTrace();
-//        }
-//
-//    }
+    public static int getCameraPhotoOrientation(String imagePath) {
+        int rotate = 0;
+        try {
+            ExifInterface exif  = null;
+            try {
+                exif = new ExifInterface(imagePath);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, 0);
+            switch (orientation) {
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotate = 180;
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotate = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 90;
+                    break;
+                default:
+                    rotate = 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rotate;
+    }
 }
