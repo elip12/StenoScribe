@@ -2,7 +2,10 @@ package com.example.stenoscribe.ui.documents;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -40,11 +43,11 @@ public class DocumentCreator extends AppCompatActivity {
             public void onClick(View v) {
                 String url = urltext.getText().toString();
                 // internet checker
-                if (true == true) {
+                if (isNetworkAvailable() == true) {
                     String name = nametext.getText().toString();
-                    if (name != "") {
+                    if ((name.length() > 0) && name != " ") {
                         // url checker
-                        if ( URLUtil.isValidUrl(url) == true ) {
+                        if ( (url.length() > 0) && URLUtil.isValidUrl(url) == true ) {
                             uid++;
                             String urlandname = url + " ////// " + name;
                             File new_file = new File(uid,meetingId,urlandname,"document");
@@ -62,5 +65,15 @@ public class DocumentCreator extends AppCompatActivity {
     private String getmeetingid() {
         Intent intent = getIntent();
         return intent.getStringExtra("id");
+    }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager internet = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network = internet.getActiveNetworkInfo();
+        boolean isAvailable = false;
+        if (network != null && network.isConnected()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
