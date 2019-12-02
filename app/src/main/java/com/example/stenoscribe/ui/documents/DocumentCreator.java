@@ -53,6 +53,7 @@ public class DocumentCreator extends AppCompatActivity {
                             String urlandname = url + " ////// " + name;
                             File new_file = new File(uid,meetingId,urlandname,"document");
                             access.insertFileAsync(new_file);
+                            finish();
                         } else {
                             Toast.makeText(DocumentCreator.this, "invalid URL", Toast.LENGTH_LONG).show();
                         }
