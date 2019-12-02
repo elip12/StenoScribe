@@ -14,6 +14,7 @@ import com.example.stenoscribe.db.File;
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 class DocumentAdapter extends ArrayAdapter {
@@ -38,7 +39,13 @@ class DocumentAdapter extends ArrayAdapter {
         }
         File current_file = files.get(position);
         TextView file_title = (TextView) current_view.findViewById(R.id.document_title);
-        file_title.setText("Document " + Integer.toString(position + 1));
+        String urlandname = current_file.path;
+        System.out.println(urlandname);
+        String[] parsed = urlandname.split(" ////// ",2);
+        String name = parsed[1];
+        System.out.println(parsed[1]);
+        System.out.println(Arrays.toString(parsed));
+        file_title.setText(name);
         TextView file_date = (TextView) current_view.findViewById(R.id.document_date);
         file_date.setText(current_file.getDate());
         return current_view;

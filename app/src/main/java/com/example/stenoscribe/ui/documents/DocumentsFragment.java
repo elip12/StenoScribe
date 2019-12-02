@@ -1,6 +1,7 @@
 package com.example.stenoscribe.ui.documents;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +52,12 @@ public class DocumentsFragment extends Fragment {
         document_viewer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                File current = (File) document_viewer.getItemAtPosition(position);
+                String urlandname = current.path;
+                String[] parsed = urlandname.split(" ////// ");
+                String url = parsed[0];
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(browserIntent);
             }
         });
         return root;

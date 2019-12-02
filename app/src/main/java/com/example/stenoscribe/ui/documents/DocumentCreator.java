@@ -27,6 +27,7 @@ public class DocumentCreator extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_document_creator);
+        final EditText nametext = findViewById(R.id.name_input);
         final EditText urltext = findViewById(R.id.url_input);
         FloatingActionButton fab = findViewById(R.id.fab_document_creator);
         this.meetingId = this.getmeetingid();
@@ -40,11 +41,17 @@ public class DocumentCreator extends AppCompatActivity {
                 String url = urltext.getText().toString();
                 // internet checker
                 if (true == true) {
-                    // url checker
-                    if ( URLUtil.isValidUrl(url) == true ) {
-                        uid++;
-                        File new_file = new File(uid,meetingId,url,"document");
-                        access.insertFileAsync(new_file);
+                    String name = nametext.getText().toString();
+                    if (name != "") {
+                        // url checker
+                        if ( URLUtil.isValidUrl(url) == true ) {
+                            uid++;
+                            String urlandname = url + " ////// " + name;
+                            File new_file = new File(uid,meetingId,urlandname,"document");
+                            access.insertFileAsync(new_file);
+                        } else {
+
+                        }
                     } else {
 
                     }
