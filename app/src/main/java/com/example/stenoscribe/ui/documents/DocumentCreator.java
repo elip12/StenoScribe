@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.URLUtil;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -32,7 +33,7 @@ public class DocumentCreator extends AppCompatActivity {
         setContentView(R.layout.activity_document_creator);
         final EditText nametext = findViewById(R.id.name_input);
         final EditText urltext = findViewById(R.id.url_input);
-        FloatingActionButton fab = findViewById(R.id.fab_document_creator);
+        Button fab = findViewById(R.id.document_creator);
         this.meetingId = this.getmeetingid();
         this.database = AppDatabase.getDatabase(getApplicationContext());
         this.access = new FileAccessor(this.database);
@@ -53,11 +54,13 @@ public class DocumentCreator extends AppCompatActivity {
                             File new_file = new File(uid,meetingId,urlandname,"document");
                             access.insertFileAsync(new_file);
                         } else {
-
+                            Toast.makeText(DocumentCreator.this, "invalid URL", Toast.LENGTH_LONG).show();
                         }
                     } else {
-
+                        Toast.makeText(DocumentCreator.this, "invalid name", Toast.LENGTH_LONG).show();
                     }
+                } else {
+                    Toast.makeText(DocumentCreator.this, "no internet connection found", Toast.LENGTH_LONG).show();
                 }
             }
         });

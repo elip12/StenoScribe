@@ -47,7 +47,7 @@ class DocumentAdapter extends ArrayAdapter {
         System.out.println(Arrays.toString(parsed));
         file_title.setText(name);
         TextView file_date = (TextView) current_view.findViewById(R.id.document_date);
-        file_date.setText(current_file.getDate());
+        file_date.setText(current_file.datetime);
         return current_view;
     }
 }
