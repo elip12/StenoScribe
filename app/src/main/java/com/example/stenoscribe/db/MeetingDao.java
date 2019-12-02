@@ -7,6 +7,7 @@ import androidx.room.Update;
 import androidx.room.Delete;
 import java.util.List;
 
+// Meetign dao for Room Persistence Library ORM model
 @Dao
 public interface MeetingDao {
     // Meeting methods
@@ -31,8 +32,8 @@ public interface MeetingDao {
             "meeting_id IS :meetingId ORDER BY uid DESC")
     List<File> listFilesOfType(String[] types, String meetingId);
 
-    @Query("SELECT * FROM file WHERE uid IS :uid AND meeting_id is :mid LIMIT 1")
-    File getFile(int uid, String mid);
+    @Query("SELECT * FROM file WHERE uid IS :uid AND meeting_id is :mid AND type is :type LIMIT 1")
+    File getFile(int uid, String mid, String type);
 
     @Insert(entity = File.class)
     void insertFile(File file);

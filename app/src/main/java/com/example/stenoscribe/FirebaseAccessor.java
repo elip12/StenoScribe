@@ -13,32 +13,27 @@ import com.example.stenoscribe.db.MeetingAccessor;
 import com.example.stenoscribe.ui.sharing.SharingFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class FirebaseAccessor {
     private FirebaseFirestore db;
     private final String TAG = "FIREBASEACCESSOR";
-    //private Context context;
     private MeetingAccessor meetingAccessor;
     private FileAccessor fileAccessor;
     private FirebaseAuth auth;
     private static FirebaseAccessor instance;
     private Context context;
 
+    // Used to upload and download meetings from firebase
     private FirebaseAccessor(Context context, MeetingAccessor meetingAccessor, FileAccessor fileAccessor) {
         this.db = FirebaseFirestore.getInstance();
 
@@ -49,12 +44,14 @@ public class FirebaseAccessor {
         Log.d(TAG, auth.getUid());
     }
 
+    // public getinstance because constructor is private
     public static FirebaseAccessor getInstance() {
         if (instance != null)
             return instance;
         return null;
     }
 
+    // when you first create it it needs metadata.
     public static FirebaseAccessor getInstance(Context context, MeetingAccessor ma, FileAccessor fa) {
         if (instance != null)
             return instance;
@@ -62,6 +59,7 @@ public class FirebaseAccessor {
         return instance;
     }
 
+    // converts Meeting object to firebase format
     public Map<String, Object> convertMeetingToQDS(Meeting meeting) {
         Map<String, Object> data = new HashMap<>();
 
@@ -72,6 +70,7 @@ public class FirebaseAccessor {
         return data;
     }
 
+    // converts file objects to firebase format
     public Map<String, Object> addFilesToQDS(Map<String, Object> m, List<File> files) {
         ArrayList<Map<String, Object>> a = (ArrayList<Map<String, Object>>)m.get("files");
         for (File file: files) {
@@ -86,7 +85,7 @@ public class FirebaseAccessor {
         return m;
     }
 
-
+    // convert firebase format to Meeting object
     public Meeting convertQDSToMeeting(QueryDocumentSnapshot document) {
         Map<String, Object> data;
         Meeting meeting;
@@ -102,6 +101,7 @@ public class FirebaseAccessor {
         return meeting;
     }
 
+    // convert firebase format to files objects
     public List<File> convertQDSToFiles(QueryDocumentSnapshot document) {
         Map<String, Object> data;
         List<File> files;
@@ -124,6 +124,7 @@ public class FirebaseAccessor {
         return files;
     }
 
+    // upserts a single meeting to firebase
     public void upsertMeetingAsync(Meeting meeting) {
         if(meetingAccessor.readMeeting(meeting.uid) == null)
             meetingAccessor.insertMeetingAsync(meeting);
@@ -131,14 +132,15 @@ public class FirebaseAccessor {
             meetingAccessor.updateMeetingAsync(meeting);
     }
 
+    // upserts a single file to firebase
     public void upsertFileAsync(File file) {
-        if (fileAccessor.getFilePath(file.uid, file.meeting_id) == null)
+        if (fileAccessor.getFilePath(file.uid, file.meeting_id, file.type) == null)
             fileAccessor.insertFileAsync(file);
         else
             fileAccessor.updateFileAsync(file);
     }
 
-    // for now, we assume everyone gets access to all meetings
+    // returns a list of all meetings that the user is allowed to access
     public void listMeetings() {
         db.collection("meetings")
                 .whereArrayContains("users", this.auth.getCurrentUser().getEmail())
@@ -163,10 +165,12 @@ public class FirebaseAccessor {
                 });
     }
 
+    // wrapper fn for readability
     public void updateDB() {
         listMeetings();
     }
 
+    // allows a user to share a meeting with another user. caveat: users must have first synced to FB
     public void shareWith(final String uid, final String email, final boolean remove) {
         final ArrayList<String> users = new ArrayList<>();
         db.collection("meetings")
@@ -212,6 +216,7 @@ public class FirebaseAccessor {
                 });
     }
 
+    // create a meeting in FB. used in upsertmeeting
     public void createMeeting(Map<String, Object> meeting) {
         final String uid = meeting.get("uid").toString();
         final ArrayList<String> users = new ArrayList<>();
@@ -228,6 +233,7 @@ public class FirebaseAccessor {
                 });
     }
 
+    // update a meeting in fb. used in upsertmeeting
     public void updateMeeting(Map<String, Object> meeting) {
         final String uid = meeting.get("uid").toString();
         db.collection("meetings")
@@ -241,6 +247,7 @@ public class FirebaseAccessor {
                 });
     }
 
+    // upserts a meeting to fb
     public void upsertMeeting(final Map<String, Object> meeting) {
         final String uid = meeting.get("uid").toString();
         db.collection("meetings")
@@ -265,6 +272,7 @@ public class FirebaseAccessor {
                 });
     }
 
+    // uploads all meetings to firebase
     public void updateFB() {
 
         List<Meeting> meetings = meetingAccessor.listMeetings();
@@ -277,6 +285,7 @@ public class FirebaseAccessor {
         }
     }
 
+    // gets a list of all users associated with a meeting and displays in an adapter
     public void listUsers(String uid, final SharingFragment.SharingAdapter adapter) {
         db.collection("meetings")
                 .whereEqualTo("uid", uid)

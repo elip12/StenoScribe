@@ -8,34 +8,31 @@
     android:orientation="vertical"
     android:background="@drawable/back">
 
-    <ScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/pull_to_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
+        <ListView
+            android:id="@+id/photos_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_height="wrap_content"/>
 
-            <ImageView
-                android:id="@+id/cameraIV"
-                android:layout_width="match_parent"
-                android:layout_height="391dp"
-                android:contentDescription="@string/example"
-                android:visibility="visible"
-                app:srcCompat="@android:drawable/ic_menu_gallery" />
-        </LinearLayout>
-    </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_photos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
         android:layout_marginBottom="@dimen/bottom_navigation_margin"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_add_black_24dp" />
-
-
 </RelativeLayout>
+
+
+
+
+
+
+

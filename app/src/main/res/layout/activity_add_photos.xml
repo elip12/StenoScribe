@@ -14,7 +14,7 @@
         android:layout_weight="1"
         android:background="#FFFFFF"
         android:gravity="center"
-        android:text="Camera or Gallery?" />
+        android:text="@string/photo_choice" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +27,6 @@
             android:id="@+id/camera"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:clickable="true"
             app:hoveredFocusedTranslationZ="8dp"
             app:maxImageSize="40dp"
@@ -37,7 +36,6 @@
             android:id="@+id/gallery"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:clickable="true"
             app:maxImageSize="40dp"
             app:srcCompat="@android:drawable/ic_menu_gallery" />
@@ -52,12 +50,14 @@
         <ImageView
             android:id="@+id/cameraIV"
             android:layout_width="202dp"
-            android:layout_height="269dp" />
+            android:layout_height="269dp"
+            android:contentDescription="@string/camera_option_description" />
 
         <ImageView
             android:id="@+id/galleryIV"
             android:layout_width="match_parent"
-            android:layout_height="269dp" />
+            android:layout_height="269dp"
+            android:contentDescription="@string/gallery_option_description" />
     </LinearLayout>
 
 </LinearLayout>

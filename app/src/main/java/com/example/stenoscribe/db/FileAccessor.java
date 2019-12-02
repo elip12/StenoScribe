@@ -9,10 +9,9 @@ import com.example.stenoscribe.ui.recordings.RecordingsFragment;
 
 import java.util.List;
 
-/*
-Add return values if insert, read, or update fails
- */
-
+// Helper class for inserting files into DB easily.
+// Options for synchronously (when you need to see it in a list immediately)
+// and async (when you are directed to a new activity immediately)
 public class FileAccessor {
     private final AppDatabase db;
     private final String tag = "FILEACCESSOR";
@@ -21,6 +20,7 @@ public class FileAccessor {
         this.db = db;
     }
 
+    // a bunch of runnables, since each operation needs its own implementation of the run method.
     private class ListerRunnable implements Runnable {
         private AppDatabase db;
         private String uid;
@@ -31,6 +31,8 @@ public class FileAccessor {
             this.db = db;
             this.uid = uid;
             this.types = types;
+            Log.d("METAG", "" + types.length);
+            Log.d("METAG", types[0]);
         }
 
         @Override
@@ -63,16 +65,18 @@ public class FileAccessor {
         private File file;
         private int uid;
         private String meetingId;
+        private String type;
 
-        public GetterRunnable(AppDatabase db, int uid, String meetingId) {
+        public GetterRunnable(AppDatabase db, int uid, String meetingId, String type) {
             this.db = db;
             this.uid = uid;
             this.meetingId = meetingId;
+            this.type = type;
         }
 
         @Override
         public void run() {
-            this.file = this.db.meetingDao().getFile(this.uid, this.meetingId);
+            this.file = this.db.meetingDao().getFile(this.uid, this.meetingId, this.type);
         }
 
         public File getFile() { return this.file; }
@@ -93,6 +97,7 @@ public class FileAccessor {
         }
     }
 
+    // a bunch of database operations on files
     public List<File> listFiles(String uid, String[] types) {
         ListerRunnable runnable = new ListerRunnable(this.db, uid, types);
         Thread thread = new Thread(runnable);
@@ -143,8 +148,8 @@ public class FileAccessor {
         thread.start();
     }
 
-    public String getFilePath(int uid, String meetingId) {
-        GetterRunnable runnable = new GetterRunnable(this.db, uid, meetingId);
+    public String getFilePath(int uid, String meetingId, String type) {
+        GetterRunnable runnable = new GetterRunnable(this.db, uid, meetingId, type);
         Thread thread = new Thread(runnable);
         thread.start();
         try {

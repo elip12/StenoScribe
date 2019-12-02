@@ -10,7 +10,8 @@ import androidx.room.PrimaryKey;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Entity(primaryKeys = {"uid", "meeting_id"})
+// File object for storing recordings, documents, and photos
+@Entity(primaryKeys = {"uid", "meeting_id", "type"})
 public class File {
 
     public File(int uid, String meeting_id, String path, String type) {

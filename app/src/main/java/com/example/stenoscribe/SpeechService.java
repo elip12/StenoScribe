@@ -1,16 +1,12 @@
 package com.example.stenoscribe;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
@@ -20,16 +16,11 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
-import android.view.View;
-
-import com.example.stenoscribe.ui.recordings.RecordingsFragment;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class SpeechService extends Service implements RecognitionListener {
-    private static final int REQUEST_RECORD_PERMISSION = 100;
     private SpeechRecognizer speech = null;
     private Intent intent;
     private final String TAG = "SPEECHSERVICE";
@@ -39,7 +30,8 @@ public class SpeechService extends Service implements RecognitionListener {
     private final int NOTIFICATION_ID = 0;
     NotificationManagerCompat notificationManager;
 
-    private void createTimerNotification(String text) {
+    // creates notification showing currently recording
+    private void createNotification(String text) {
 
         // Create notification with various properties
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -56,8 +48,8 @@ public class SpeechService extends Service implements RecognitionListener {
         notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
-
-    private void createTimerNotificationChannel() {
+    // create notification channel for starting and stopping notification
+    private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT < 26) {
             return;
         }
@@ -73,10 +65,10 @@ public class SpeechService extends Service implements RecognitionListener {
         notificationManager.createNotificationChannel(channel);
     }
 
-
+    // start listening for audio
     @Override
     public int onStartCommand(Intent i, int flags, int startId) {
-        Log.d(TAG, "service starting");
+        //Log.d(TAG, "service starting");
         speech = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
         speech.setRecognitionListener(this);
         intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -86,18 +78,21 @@ public class SpeechService extends Service implements RecognitionListener {
 
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
         speech.startListening(intent);
-        createTimerNotificationChannel();
-        createTimerNotification("Recording Audio");
+        createNotificationChannel();
+        createNotification("Recording Audio");
 
         return START_STICKY;
     }
 
+    // used to share the recording transcription
     @Override
     public IBinder onBind(Intent i) {
-        Log.d(TAG, "Service binding");
+        //Log.d(TAG, "Service binding");
         return mBinder;
     }
 
+    // activity tells service to stop listening, kill everything so that it doesnt give a recognizer
+    // busy error when restarting
     public void stopListening() {
         speech.stopListening();
         speech.destroy();
@@ -105,19 +100,18 @@ public class SpeechService extends Service implements RecognitionListener {
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
+    // a bunch of methods that need to be overridden since this class implements RecognitionListener
     @Override
     public void onBeginningOfSpeech() {
-        Log.i(TAG, "onBeginningOfSpeech");
-
+        //Log.d(TAG, "onBeginningOfSpeech");
     }
     @Override
     public void onBufferReceived(byte[] buffer) {
-        Log.i(TAG, "onBufferReceived: " + buffer);
+        //Log.d(TAG, "onBufferReceived: " + buffer);
     }
     @Override
     public void onEndOfSpeech() {
-        Log.i(TAG, "onEndOfSpeech");
-
+        //Log.d(TAG, "onEndOfSpeech");
     }
     @Override
     public void onError(int errorCode) {
@@ -146,7 +140,7 @@ public class SpeechService extends Service implements RecognitionListener {
                 speech.cancel();
                 break;
             case SpeechRecognizer.ERROR_SERVER:
-                message = "error from server";
+                message = "Server error";
                 break;
             case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
                 message = "No speech input";
@@ -155,20 +149,20 @@ public class SpeechService extends Service implements RecognitionListener {
                 message = "Didn't understand, please try again.";
                 break;
         }
-        Log.e(TAG, message);
+        Log.w(TAG, message);
         speech.startListening(intent);
     }
     @Override
     public void onEvent(int arg0, Bundle arg1) {
-        Log.i(TAG, "onEvent");
+        //Log.d(TAG, "onEvent");
     }
     @Override
     public void onPartialResults(Bundle arg0) {
-        Log.i(TAG, "onPartialResults");
+        //Log.d(TAG, "onPartialResults");
     }
     @Override
     public void onReadyForSpeech(Bundle arg0) {
-        Log.i(TAG, "onReadyForSpeech");
+        //Log.d(TAG, "onReadyForSpeech");
     }
     @Override
     public void onResults(Bundle results) {
@@ -180,8 +174,7 @@ public class SpeechService extends Service implements RecognitionListener {
     }
     @Override
     public void onRmsChanged(float rmsdB) {
-        //Log.i(TAG, "onRmsChanged: " + rmsdB);
-
+        //Log.idTAG, "onRmsChanged: " + rmsdB);
     }
 
     public class MyBinder extends Binder {

@@ -3,7 +3,6 @@ package com.example.stenoscribe;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -30,6 +29,7 @@ public class MeetingDetails extends AppCompatActivity {
     private EditText actionBarText;
     private String uid;
 
+    // method allowing fragments to get the uid of their parent meeting
     public String getUid() {
         return this.uid;
     }
@@ -38,7 +38,8 @@ public class MeetingDetails extends AppCompatActivity {
         return this.meeting.title;
     }
 
-    // Make actionbar title editable, and show back button
+    // Make actionbar title editable, and show back button. When user finishes editing,
+    // save title to db
     public EditText configureActionBar() {
         final ViewGroup actionBarLayout;
         final ActionBar actionBar;
@@ -75,6 +76,7 @@ public class MeetingDetails extends AppCompatActivity {
         return actionBarText;
     }
 
+    // instantiates db, accessor, and fragment navigation
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         final Intent intent;
@@ -98,6 +100,7 @@ public class MeetingDetails extends AppCompatActivity {
 
     }
 
+    // displays meeting title
     @Override
     protected void onResume() {
         super.onResume();
@@ -106,6 +109,7 @@ public class MeetingDetails extends AppCompatActivity {
 
     }
 
+    // if someone quits the app or destroys this activity by any means, stop the speech service.
     @Override
     protected void onDestroy() {
         super.onDestroy();

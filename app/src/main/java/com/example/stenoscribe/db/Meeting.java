@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
+// Room persistence library meetings class definition
 @Entity
 public class Meeting {
 

@@ -3,27 +3,16 @@ package com.example.stenoscribe;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.stenoscribe.db.FileOperator;
-
-import org.w3c.dom.Text;
-
 public class ReadTranscriptionActivity extends AppCompatActivity {
-    private FileOperator io;
     private String TAG = "READTRANSCTRIPTION";
 
-    // Make actionbar title editable, and show back button
+    // actionbar shows meeting title but is not editable, and show back button
     public void configureActionBar(String title) {
         TextView actionBarText;
         final ViewGroup actionBarLayout;
@@ -42,6 +31,7 @@ public class ReadTranscriptionActivity extends AppCompatActivity {
         actionBarText.setText(title);
     }
 
+    // to make back button have correct behavior
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId()== android.R.id.home) {
             finish();
@@ -50,13 +40,11 @@ public class ReadTranscriptionActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_read_transcription);
 
-        this.io = new FileOperator(getApplicationContext());
         Intent i = getIntent();
         String data = i.getStringExtra("path");
         TextView view = findViewById(R.id.transcription_text);
