@@ -31,8 +31,6 @@ public class FileAccessor {
             this.db = db;
             this.uid = uid;
             this.types = types;
-            Log.d("METAG", "" + types.length);
-            Log.d("METAG", types[0]);
         }
 
         @Override

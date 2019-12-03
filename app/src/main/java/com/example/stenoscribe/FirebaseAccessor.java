@@ -79,6 +79,7 @@ public class FirebaseAccessor {
             fmap.put("meeting_id", file.meeting_id);
             fmap.put("path", file.path);
             fmap.put("type", file.type);
+            fmap.put("date", file.datetime);
             a.add(fmap);
         }
         m.put("files", a);
@@ -110,6 +111,7 @@ public class FirebaseAccessor {
         String meeting_id;
         String path;
         String type;
+        String date;
 
         files = new ArrayList<>();
         data = document.getData();
@@ -118,7 +120,8 @@ public class FirebaseAccessor {
             meeting_id = (String)f.get("meeting_id");
             path = (String)f.get("path");
             type = (String)f.get("type");
-            file = new File(uid, meeting_id, path, type);
+            date = (String)f.get("date");
+            file = new File(uid, meeting_id, path, type, date);
             files.add(file);
         }
         return files;

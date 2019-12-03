@@ -1,11 +1,9 @@
 package com.example.stenoscribe.db;
 
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import androidx.room.Ignore;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +17,16 @@ public class File {
         this.meeting_id = meeting_id;
         this.path = path;
         this.type = type;
+        this.datetime = getDate();
+    }
+
+    @Ignore
+    public File(int uid, String meeting_id, String path, String type, String datetime) {
+        this.uid = uid;
+        this.meeting_id = meeting_id;
+        this.path = path;
+        this.type = type;
+        this.datetime = datetime;
     }
 
     public String getDate() {
@@ -28,6 +36,7 @@ public class File {
     }
 
     @NonNull
+    @ColumnInfo(name = "uid")
     public int uid;
 
     @ColumnInfo(name = "meeting_id")
@@ -44,5 +53,5 @@ public class File {
 
     @ColumnInfo(name = "datetime")
     @NonNull
-    public String datetime = this.getDate();
+    public String datetime;
 }

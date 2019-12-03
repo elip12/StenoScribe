@@ -59,14 +59,9 @@ public class AddPhotosActivity extends AppCompatActivity  {
     TextView text;
     FloatingActionButton cam;
     FloatingActionButton gallery;
-    ImageView cameraImage;
-    ImageView galleryImage;
-
-    private FileOperator io;
 
     private AppDatabase db;
     private FileAccessor accessor;
-    private List<File> photos;
 
     private int lastPhotoId;
     private String type = "photo";
@@ -84,9 +79,6 @@ public class AddPhotosActivity extends AppCompatActivity  {
         text = findViewById(R.id.textView);
         cam = findViewById(R.id.camera);
         gallery = findViewById(R.id.gallery);
-        cameraImage = findViewById(R.id.cameraIV);
-        galleryImage = findViewById(R.id.galleryIV);
-        this.io = new FileOperator(getApplicationContext());
         this.meetingId = getIntent().getExtras().getString("meetingId");
         this.lastPhotoId = getIntent().getExtras().getInt("lastPhotoId");
         images = findViewById(R.id.imageView);

@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +81,7 @@ public class PhotosFragment extends Fragment {
             if (item != null) {
                 images = v.findViewById(R.id.imageView);
                 //images.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 120, 120, false));
+
                 images.setRotation(getCameraPhotoOrientation(item.path));
                 Bitmap bitmap = StringToBitMap(item.path);
                 Bitmap bMapScaled = Bitmap.createScaledBitmap(bitmap, 120, 120, true);
@@ -186,7 +188,7 @@ public class PhotosFragment extends Fragment {
     }
 
     public static int getCameraPhotoOrientation(String imagePath) {
-        int rotate = 0;
+        int rotate = 90;
         try {
             ExifInterface exif  = null;
             try {
@@ -199,17 +201,17 @@ public class PhotosFragment extends Fragment {
             switch (orientation) {
 
                 case ExifInterface.ORIENTATION_ROTATE_180:
-                    rotate = 180;
+                    rotate = 270;
                     break;
 
                 case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotate = 90;
+                    rotate = 180;
                     break;
                 case ExifInterface.ORIENTATION_ROTATE_270:
-                    rotate = 90;
+                    rotate = 0;
                     break;
                 default:
-                    rotate = 0;
+                    rotate = 90;
             }
         } catch (Exception e) {
             e.printStackTrace();

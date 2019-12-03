@@ -20,7 +20,7 @@
         android:id="@+id/add_user"
         android:layout_width="100dp"
         android:layout_height="45dp"
-        android:layout_toRightOf="@+id/new_user"
+        android:layout_alignParentRight="true"
         android:textColor="@color/colorGray"
         android:text="Add User"
         android:background="@color/colorDarkGray"

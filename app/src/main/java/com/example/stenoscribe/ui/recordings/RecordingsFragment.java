@@ -101,7 +101,7 @@ public class RecordingsFragment extends Fragment {
 
     // requests permissions needed for recording
     public void requestPermissions() {
-        Log.d(TAG, "requestPermission");
+        //Log.d(TAG, "requestPermission");
         ActivityCompat.requestPermissions(getActivity(),
                         new String[]{Manifest.permission.RECORD_AUDIO},
                         REQUEST_RECORD_PERMISSION);
@@ -113,7 +113,7 @@ public class RecordingsFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Log.d(TAG, "onRequestPermissionsResult");
+        //Log.d(TAG, "onRequestPermissionsResult");
         switch (requestCode) {
             case REQUEST_RECORD_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -143,7 +143,7 @@ public class RecordingsFragment extends Fragment {
                     }
                     else {
                         Intent i = new Intent(getActivity(), SpeechService.class);
-                        Log.d(TAG, "telling service to start");
+                        //Log.d(TAG, "telling service to start");
                         getActivity().startService(i);
                         getActivity().bindService(i, connection, Context.BIND_AUTO_CREATE);
                         Snackbar.make(view, "Recording", Snackbar.LENGTH_LONG)
@@ -161,12 +161,12 @@ public class RecordingsFragment extends Fragment {
                     getContext().unbindService(connection);
                     Intent i = new Intent(getActivity(), SpeechService.class);
                     getActivity().stopService(i);
-                    Log.d(TAG, "unbound and stopped service");
+                    //Log.d(TAG, "unbound and stopped service");
                     isBound = false;
 
                     // add new recording into database;
                     int uid = lastRecordingId + 1;
-                    Log.d(TAG, "UID " + uid);
+                    //Log.d(TAG, "UID " + uid);
                     File file = new File(uid, meetingId, transcription, type);
                     accessor.insertFile(file, adapter);
                     recordings = accessor.listFiles(meetingId, type);

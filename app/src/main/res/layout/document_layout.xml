@@ -8,12 +8,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/colorGray"
-        android:text="TextView" />
+        android:minLines="2"
+        android:maxLines="2" />
 
     <TextView
         android:id="@+id/document_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/colorGray"
-        android:text="TextView" />
+        android:minLines="1"
+        android:maxLines="1"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/colorGray" />
 </LinearLayout>

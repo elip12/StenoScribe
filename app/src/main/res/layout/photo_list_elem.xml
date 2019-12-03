@@ -9,5 +9,5 @@
         android:layout_width="match_parent"
         android:layout_height="542dp"
         android:contentDescription="@string/example"
-        app:srcCompat="@android:drawable/ic_menu_gallery" />
+        app:srcCompat="@drawable/ic_insert_photo_black_24dp" />
 </RelativeLayout>
