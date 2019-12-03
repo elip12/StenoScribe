@@ -155,6 +155,7 @@ public class RecordingsFragment extends Fragment {
                     speechService.stopListening();
                     // get transcription from service
                     String transcription = speechService.returnedText;
+                    speechService.returnedText = "";
                     if (transcription.equals("")) {
                         transcription = "No speech detected";
                     }
@@ -234,6 +235,14 @@ public class RecordingsFragment extends Fragment {
         this.configureListView();
         configurePullToRefresh(root);
         requestPermissions();
+        Intent i = new Intent(getActivity(), SpeechService.class);
+        getActivity().bindService(i, connection, 0);
         return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getActivity().unbindService(connection);
     }
 }
