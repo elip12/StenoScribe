@@ -24,7 +24,6 @@ import com.google.firebase.auth.FirebaseUser;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,18 +98,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // configures the pull to refresh widget. refreshes meetings from db to listview
-    public void configurePullToRefresh() {
-        final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pull_to_refresh);
-        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                firebaseAccessor.listMeetings(adapter);
-                pullToRefresh.setRefreshing(false);
-            }
-        });
-    }
-
     // firebase UI logout
     public void logout() {
         AuthUI.getInstance()
@@ -136,14 +123,13 @@ public class MainActivity extends AppCompatActivity {
 
         this.fab = findViewById(R.id.fab);
         this.configureFab();
-        this.configurePullToRefresh();
         user = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     // sets the listview to have onclick listeners for clicking on meetings
     public void configureListView() {
-        this.listView.setAdapter(this.adapter);
-        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setAdapter(this.adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
                 final Meeting item;
@@ -162,11 +148,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        this.firebaseAccessor = FirebaseAccessor2.getInstance(getApplicationContext());
-        this.adapter = new MeetingAdapter(MainActivity.this,
+        firebaseAccessor = FirebaseAccessor2.getInstance(getApplicationContext());
+        adapter = new MeetingAdapter(MainActivity.this,
                 R.layout.meetings_list_elem, new ArrayList<Meeting>());
-        this.listView = findViewById(R.id.meetings_list);
-        this.configureListView();
+        listView = findViewById(R.id.meetings_list);
+        configureListView();
         firebaseAccessor.listMeetings(adapter);
         adapter.notifyDataSetChanged();
     }

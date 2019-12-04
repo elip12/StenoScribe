@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="542dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:contentDescription="@string/example"
         app:srcCompat="@drawable/ic_insert_photo_black_24dp" />
 </RelativeLayout>

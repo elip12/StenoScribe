@@ -39,16 +39,10 @@
         android:layout_below="@id/add_user"
         android:background="@color/colorDarkGray" />
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/pull_to_refresh"
+    <ListView
+        android:id="@+id/sharing_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/hline1">
-        <ListView
-            android:id="@+id/sharing_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_height="wrap_content"/>
 
 
 </RelativeLayout>

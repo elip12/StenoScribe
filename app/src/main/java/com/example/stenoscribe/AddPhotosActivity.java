@@ -100,33 +100,29 @@ public class AddPhotosActivity extends AppCompatActivity  {
 
         if(requestCode == 101 && data != null && resultCode != RESULT_CANCELED){
             Uri imageUri = data.getData();
-            Bitmap bitmap = decodeUriToBitmap(AddPhotosActivity.this, imageUri);
-            String bm = BitMapToString(bitmap);
-
+            Bitmap bitmap;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), imageUri);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Failed to get image", Toast.LENGTH_LONG).show();
+                return;
+            }
             String uid = UUID.randomUUID().toString();
-            file = new File(uid, meetingId, bm, type);
-            if(file == null){
-                Toast.makeText(AddPhotosActivity.this, "File is null", Toast.LENGTH_LONG).show();
-            }
-            else{
-                accessor.addFile(file);
-            }
+            String path = meetingId + "/" + uid + ".jpg";
+            file = new File(uid, meetingId, path, type);
+            accessor.addImage(path, bitmap);
+            accessor.addFile(file);
         }
 
         else if(requestCode == 0 && data != null && resultCode != RESULT_CANCELED){
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
 
-            //images.setImageBitmap(bitmap);
-            String bm = BitMapToString(bitmap);
             String uid = UUID.randomUUID().toString();
-            file = new File(uid, meetingId, bm, type);
-
-            if(file == null){
-                Toast.makeText(AddPhotosActivity.this, "File is null", Toast.LENGTH_LONG).show();
-            }
-            else{
-                accessor.addFile(file);
-            }
+            String path = meetingId + "/" + uid + ".jpg";
+            file = new File(uid, meetingId, path, type);
+            accessor.addImage(path, bitmap);
+            accessor.addFile(file);
         }
 
         else{

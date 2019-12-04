@@ -74,17 +74,6 @@ public class SharingFragment extends Fragment {
         this.listView.setAdapter(this.adapter);
     }
 
-    public void configurePullToRefresh(View root) {
-        final SwipeRefreshLayout pullToRefresh = root.findViewById(R.id.pull_to_refresh);
-        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                firebaseAccessor.listUsers(meetingId, adapter);
-                pullToRefresh.setRefreshing(false);
-            }
-        });
-    }
-
     public void configureShareText(View root) {
         final EditText newUser = root.findViewById(R.id.new_user);
         final Button addUser = root.findViewById(R.id.add_user);
@@ -122,7 +111,6 @@ public class SharingFragment extends Fragment {
         adapter = new SharingAdapter(root.getContext(), R.layout.meetings_list_elem, new ArrayList<String>());
         listView = root.findViewById(R.id.sharing_list);
         configureListView();
-        configurePullToRefresh(root);
         firebaseAccessor = FirebaseAccessor2.getInstance(getContext());
         if (firebaseAccessor == null)
             Log.d(TAG, "firebase accessor is null");

@@ -9,7 +9,9 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -20,7 +22,10 @@ import com.example.stenoscribe.AddPhotosActivity;
 import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
+import com.example.stenoscribe.ReadTranscriptionActivity;
+import com.example.stenoscribe.ViewPhotoActivity;
 import com.example.stenoscribe.db.File;
+import com.example.stenoscribe.ui.recordings.RecordingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.content.Intent;
@@ -38,9 +43,8 @@ public class PhotosFragment extends Fragment {
     private PhotoAdapter adapter;
     private FirebaseAccessor2 accessor;
     private String meetingId;
-    private int lastPhotoId = 0;
     private String type = "photo";
-    private ListView listView;
+    private GridView gridView;
 
     public class PhotoAdapter extends ArrayAdapter<File> {
         private List<File> items;
@@ -53,7 +57,7 @@ public class PhotosFragment extends Fragment {
         @Override
         public View getView(int position, View v, ViewGroup parent) {
             final File item;
-            final ImageView images;
+            final ImageView image;
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -62,14 +66,15 @@ public class PhotosFragment extends Fragment {
             item = items.get(position);
             //Bitmap bitmap = StringToBitMap(item.path);
             if (item != null) {
-                images = v.findViewById(R.id.imageView);
+                image = v.findViewById(R.id.imageView);
                 //images.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 120, 120, false));
 
-                images.setRotation(90);
-                Bitmap bitmap = StringToBitMap(item.path);
-                Bitmap bMapScaled = Bitmap.createScaledBitmap(bitmap, 120, 120, true);
-                images.setImageBitmap(bMapScaled);
-                images.setAdjustViewBounds(true);
+//                image.setRotation(90);
+                accessor.viewImage(item.path, image);
+//                Bitmap bitmap = StringToBitMap(item.path);
+//                Bitmap bMapScaled = Bitmap.createScaledBitmap(bitmap, 120, 120, true);
+//                image.setImageBitmap(bMapScaled);
+//                image.setAdjustViewBounds(true);
             }
             return v;
         }
@@ -90,7 +95,16 @@ public class PhotosFragment extends Fragment {
     }
 
     public void configureListView() {
-        this.listView.setAdapter(this.adapter);
+        gridView.setAdapter(this.adapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
+                String path = PhotosFragment.this.adapter.items.get(position).path;
+                final Intent intent = new Intent(getContext(), ViewPhotoActivity.class);
+                intent.putExtra("path", path);
+                startActivity(intent);
+            }
+        });
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -104,25 +118,11 @@ public class PhotosFragment extends Fragment {
 
         adapter = new PhotosFragment.PhotoAdapter(root.getContext(),
                 R.layout.meetings_list_elem, new ArrayList<File>());
-        listView = root.findViewById(R.id.photos_list);
+        gridView = root.findViewById(R.id.photos_list);
         configureListView();
 
         accessor.listFiles(meetingId, type, adapter);
 
         return root;
     }
-
-    public Bitmap StringToBitMap(String encodedString){
-        try{
-            byte [] encodeByte = Base64.decode(encodedString,Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        }
-        catch(Exception e){
-            e.getMessage();
-            return null;
-        }
-    }
-
-
 }
