@@ -29,7 +29,7 @@ public class DocumentsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_documents, container, false);
         meetingId = ((MeetingDetails)getActivity()).getUid();
-        final ListView document_viewer = (ListView) root.findViewById(R.id.document_view);
+        final ListView document_viewer = root.findViewById(R.id.document_view);
         accessor = FirebaseAccessor2.getInstance(getContext());
 
         adapter = new DocumentAdapter(getContext(), R.layout.document_layout, new ArrayList<File>());

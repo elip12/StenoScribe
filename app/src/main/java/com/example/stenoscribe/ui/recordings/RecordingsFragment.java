@@ -117,17 +117,9 @@ public class RecordingsFragment extends Fragment {
         //Log.d(TAG, "onRequestPermissionsResult");
         switch (requestCode) {
             case REQUEST_RECORD_PERMISSION:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    recordingPermission = true;
-                } else {
-                    recordingPermission = false;
-                }
+                recordingPermission = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
             case REQUEST_INTERNET_PERMISSION:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    internetPermission = true;
-                } else {
-                    internetPermission = false;
-                }
+                internetPermission = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
         }
     }
 

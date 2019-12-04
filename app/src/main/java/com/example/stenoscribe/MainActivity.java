@@ -31,11 +31,10 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAccessor2 firebaseAccessor;
-    private List<Meeting> meetings;
     private FloatingActionButton fab;
     private MeetingAdapter adapter;
     private ListView listView;
-    FirebaseUser user;
+    private FirebaseUser user;
 
     // Meeting list adapter for displaying custom meeting elements.
     public class MeetingAdapter extends ArrayAdapter<Meeting> {
@@ -48,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Displays the meeting title and date
         @Override
-        public View getView(int position, View v, ViewGroup parent) {
+        public @NonNull View getView(int position, View v, ViewGroup parent) {
             final Meeting item;
             final TextView title;
             final TextView date;
@@ -78,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // configures the floating action button.
-    // on click, creates a meeting, inserts it into the db,
-    // then starts that meeting' s meeting details activity
+    // on click, creates a meeting, upserts it to FB,
+    // then starts that meeting's meeting details activity
     public void configureFab() {
         this.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,16 +110,12 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    // gets db instance, creates db accessor (for easy db operations),
     // configures fab, pull to refresh, and listview, and gets the current firebase user
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.setToolbarTitle();
-
-        //getApplicationContext().deleteDatabase("stenoscribe");
-
         this.fab = findViewById(R.id.fab);
         this.configureFab();
         user = FirebaseAuth.getInstance().getCurrentUser();

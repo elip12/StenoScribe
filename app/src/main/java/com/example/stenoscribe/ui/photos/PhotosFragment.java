@@ -63,7 +63,8 @@ public class PhotosFragment extends Fragment {
             item = items.get(position);
             if (item != null) {
                 image = v.findViewById(R.id.imageView);
-                accessor.viewImage(item.path, image);
+
+                accessor.viewImage("thumb/" + item.path, image);
             }
             return v;
         }
@@ -81,10 +82,16 @@ public class PhotosFragment extends Fragment {
                 Toast.makeText(getContext(), "Could not retrieve image", Toast.LENGTH_LONG).show();
                 return;
             }
+            Bitmap thumb = Bitmap.createScaledBitmap(
+                    bitmap, 120, 120, false);
+
+
             String uid = UUID.randomUUID().toString();
             String path = meetingId + "/" + uid + ".jpg";
+            String path2 = "thumb/" + meetingId + "/" + uid + ".jpg";
             File file = new File(uid, meetingId, path, type);
             accessor.addImage(path, bitmap);
+            accessor.addImage(path2, thumb);
             accessor.addFile(file);
         }
         else {

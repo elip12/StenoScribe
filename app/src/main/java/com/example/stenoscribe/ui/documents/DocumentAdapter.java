@@ -38,7 +38,7 @@ class DocumentAdapter extends ArrayAdapter<File> {
             current_view = vi.inflate(R.layout.meetings_list_elem, null);
         }
         File current_file = files.get(position);
-        TextView file_title = (TextView) current_view.findViewById(R.id.viewMeetingsListElemTitle);
+        TextView file_title = current_view.findViewById(R.id.viewMeetingsListElemTitle);
         String urlandname = current_file.path;
         System.out.println(urlandname);
         String[] parsed = urlandname.split(" ////// ",2);
@@ -46,7 +46,7 @@ class DocumentAdapter extends ArrayAdapter<File> {
         System.out.println(parsed[1]);
         System.out.println(Arrays.toString(parsed));
         file_title.setText(name);
-        TextView file_date = (TextView) current_view.findViewById(R.id.viewMeetingsListElemDate);
+        TextView file_date = current_view.findViewById(R.id.viewMeetingsListElemDate);
         file_date.setText(current_file.datetime);
         return current_view;
     }

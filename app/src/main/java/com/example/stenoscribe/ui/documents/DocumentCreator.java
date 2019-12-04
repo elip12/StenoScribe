@@ -107,10 +107,6 @@ public class DocumentCreator extends AppCompatActivity {
     private boolean isNetworkAvailable() {
         ConnectivityManager internet = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = internet.getActiveNetworkInfo();
-        if (network != null && network.isConnected()) {
-            return true;
-        } else {
-            return false;
-        }
+        return network != null && network.isConnected();
     }
 }
