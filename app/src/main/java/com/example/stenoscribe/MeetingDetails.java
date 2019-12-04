@@ -10,9 +10,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.Meeting;
-import com.example.stenoscribe.db.MeetingAccessor;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.ActionBar;
@@ -23,11 +21,10 @@ import androidx.navigation.ui.NavigationUI;
 
 public class MeetingDetails extends AppCompatActivity {
 
-    private AppDatabase db;
-    private MeetingAccessor accessor;
-    private Meeting meeting;
     private EditText actionBarText;
     private String uid;
+    private String title;
+    private FirebaseAccessor2 accessor;
 
     // method allowing fragments to get the uid of their parent meeting
     public String getUid() {
@@ -35,7 +32,7 @@ public class MeetingDetails extends AppCompatActivity {
     }
 
     public String getMeetingTitle() {
-        return this.meeting.title;
+        return this.title;
     }
 
     // Make actionbar title editable, and show back button. When user finishes editing,
@@ -65,9 +62,9 @@ public class MeetingDetails extends AppCompatActivity {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     v.clearFocus();
 
-                    // update meeting title in db
-                    meeting.title = v.getText().toString();
-                    accessor.updateMeeting(meeting);
+                    // update meeting title in firebase
+                    title = v.getText().toString();
+                    accessor.updateMeeting(uid, "title", title);
                     return true;
                 }
                 return false;
@@ -76,7 +73,6 @@ public class MeetingDetails extends AppCompatActivity {
         return actionBarText;
     }
 
-    // instantiates db, accessor, and fragment navigation
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         final Intent intent;
@@ -92,20 +88,16 @@ public class MeetingDetails extends AppCompatActivity {
         // get data from intent
         intent = getIntent();
         this.uid = intent.getStringExtra("uid");
-
-        // instantiate global variables
-        this.db = AppDatabase.getDatabase(getApplicationContext());
-        this.accessor = new MeetingAccessor(this.db);
-        this.meeting = accessor.readMeeting(this.uid);
-
+        this.title = intent.getStringExtra("title");
     }
 
     // displays meeting title
     @Override
     protected void onResume() {
         super.onResume();
-        this.actionBarText = this.configureActionBar();
-        this.actionBarText.setText(this.meeting.title);
+        accessor = FirebaseAccessor2.getInstance(getApplicationContext());
+        actionBarText = configureActionBar();
+        actionBarText.setText(title);
 
     }
 

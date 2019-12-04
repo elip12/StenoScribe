@@ -17,20 +17,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.stenoscribe.MeetingDetails;
+import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.R;
-import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
-import com.example.stenoscribe.db.FileAccessor;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
+import java.util.UUID;
 
 public class DocumentCreator extends AppCompatActivity {
-    private AppDatabase database;
-    private FileAccessor access;
     private String meetingId;
-    private int uid;
+    private String uid;
+    private final String type = "document";
+    private FirebaseAccessor2 accessor;
 
     // actionbar shows meeting title but is not editable, and show back button
     public void configureActionBar(String title) {
@@ -66,39 +64,38 @@ public class DocumentCreator extends AppCompatActivity {
         setContentView(R.layout.activity_document_creator);
 
         configureActionBar("New Document");
+        accessor = FirebaseAccessor2.getInstance(getApplicationContext());
 
         final EditText nametext = findViewById(R.id.name_input);
         final EditText urltext = findViewById(R.id.url_input);
         Button fab = findViewById(R.id.document_creator);
         this.meetingId = this.getmeetingid();
-        this.database = AppDatabase.getDatabase(getApplicationContext());
-        this.access = new FileAccessor(this.database);
-        List<File> document_library = this.access.listFiles(this.meetingId,"document");
-        this.uid = document_library.size();
+        //List<File> document_library = this.access.listFiles(this.meetingId,"document");
+        //this.uid = document_library.size();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String url = urltext.getText().toString();
                 // internet checker
-                if (isNetworkAvailable() == true) {
+                if (isNetworkAvailable()) {
                     String name = nametext.getText().toString();
                     if ((name.length() > 0) && name != " ") {
                         // url checker
-                        if ( (url.length() > 0) && URLUtil.isValidUrl(url) == true ) {
-                            uid++;
+                        if ( (url.length() > 0) && URLUtil.isValidUrl(url)) {
+                            uid = UUID.randomUUID().toString();
                             String urlandname = url + " ////// " + name;
-                            File new_file = new File(uid,meetingId,urlandname,"document");
-                            access.insertFileAsync(new_file);
+                            File new_file = new File(uid, meetingId, urlandname, type);
+                            accessor.addFile(new_file);
                             finish();
                         } else {
-                            Toast.makeText(DocumentCreator.this, "invalid URL", Toast.LENGTH_LONG).show();
+                            Toast.makeText(DocumentCreator.this, "Invalid URL", Toast.LENGTH_LONG).show();
                         }
                     } else {
-                        Toast.makeText(DocumentCreator.this, "invalid name", Toast.LENGTH_LONG).show();
+                        Toast.makeText(DocumentCreator.this, "Invalid Name", Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(DocumentCreator.this, "no internet connection found", Toast.LENGTH_LONG).show();
+                    Toast.makeText(DocumentCreator.this, "No Internet Connection", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -110,7 +107,6 @@ public class DocumentCreator extends AppCompatActivity {
     private boolean isNetworkAvailable() {
         ConnectivityManager internet = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = internet.getActiveNetworkInfo();
-        boolean isAvailable = false;
         if (network != null && network.isConnected()) {
             return true;
         } else {

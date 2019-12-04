@@ -2,12 +2,6 @@ package com.example.stenoscribe.ui.sharing;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.media.Image;
-import android.os.CountDownTimer;
-import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
-import android.content.ActivityNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -16,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,30 +19,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.stenoscribe.FirebaseAccessor;
+import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
-import com.example.stenoscribe.ReadTranscriptionActivity;
-import com.example.stenoscribe.db.AppDatabase;
-import com.example.stenoscribe.db.File;
-import com.example.stenoscribe.db.FileAccessor;
-import com.example.stenoscribe.db.FileOperator;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.common.collect.ArrayTable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-
-import static android.app.Activity.RESULT_OK;
 
 public class SharingFragment extends Fragment {
     private SharingAdapter adapter;
-    private FirebaseAccessor firebaseAccessor;
+    private FirebaseAccessor2 firebaseAccessor;
     private List<String> users;
     private ListView listView;
     private String meetingId;
@@ -137,13 +118,12 @@ public class SharingFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_sharing, container, false);
 
-        ArrayList<String> users = new ArrayList<>();
         meetingId = ((MeetingDetails)getActivity()).getUid();
-        adapter = new SharingAdapter(root.getContext(), R.layout.meetings_list_elem, users);
+        adapter = new SharingAdapter(root.getContext(), R.layout.meetings_list_elem, new ArrayList<String>());
         listView = root.findViewById(R.id.sharing_list);
         configureListView();
         configurePullToRefresh(root);
-        firebaseAccessor = FirebaseAccessor.getInstance();
+        firebaseAccessor = FirebaseAccessor2.getInstance(getContext());
         if (firebaseAccessor == null)
             Log.d(TAG, "firebase accessor is null");
         firebaseAccessor.listUsers(meetingId, adapter);

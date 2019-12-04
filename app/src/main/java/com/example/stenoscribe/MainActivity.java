@@ -13,10 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.stenoscribe.db.AppDatabase;
-import com.example.stenoscribe.db.FileAccessor;
 import com.example.stenoscribe.db.Meeting;
-import com.example.stenoscribe.db.MeetingAccessor;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,13 +26,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-    private AppDatabase db;
-    private MeetingAccessor accessor;
-    private FirebaseAccessor firebaseAccessor;
+    private FirebaseAccessor2 firebaseAccessor;
     private List<Meeting> meetings;
     private FloatingActionButton fab;
     private MeetingAdapter adapter;
@@ -93,23 +89,14 @@ public class MainActivity extends AppCompatActivity {
                 final Intent intent;
 
                 String uid = UUID.randomUUID().toString();
-                meeting = new Meeting(uid);
+                meeting = new Meeting(uid, user.getEmail());
                 intent = new Intent(view.getContext(), MeetingDetails.class);
                 intent.putExtra("uid", meeting.uid);
-                accessor.insertMeetingAsync(meeting);
+                intent.putExtra("title", meeting.title);
+                firebaseAccessor.createMeeting(meeting);
                 view.getContext().startActivity(intent);
             }
         });
-    }
-
-    // calls firebaseAccessor method to sync
-    public void syncFirebaseToLocal() {
-        this.firebaseAccessor.updateDB();
-    }
-
-    // calls firebaseAccessor method to sync
-    public void syncLocalToFirebase() {
-        this.firebaseAccessor.updateFB();
     }
 
     // configures the pull to refresh widget. refreshes meetings from db to listview
@@ -118,10 +105,7 @@ public class MainActivity extends AppCompatActivity {
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                meetings = accessor.listMeetings();
-                adapter.clear();
-                adapter.addAll(meetings);
-                adapter.notifyDataSetChanged();
+                firebaseAccessor.listMeetings(adapter);
                 pullToRefresh.setRefreshing(false);
             }
         });
@@ -148,12 +132,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         this.setToolbarTitle();
 
-        // delete database on restart
         //getApplicationContext().deleteDatabase("stenoscribe");
 
-        this.db = AppDatabase.getDatabase(getApplicationContext());
-        this.accessor = new MeetingAccessor(this.db);
-        this.firebaseAccessor = FirebaseAccessor.getInstance(getApplicationContext(), this.accessor, new FileAccessor(this.db));
         this.fab = findViewById(R.id.fab);
         this.configureFab();
         this.configurePullToRefresh();
@@ -172,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 item = (Meeting) adapter.getItemAtPosition(position);
                 intent = new Intent(getApplicationContext(), MeetingDetails.class);
                 intent.putExtra("uid", item.uid);
+                intent.putExtra("title", item.title);
                 startActivity(intent);
             }
         });
@@ -181,16 +162,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (this.db == null) {
-            this.db = AppDatabase.getDatabase(getApplicationContext());
-        }
-        if (this.accessor == null) {
-            this.accessor = new MeetingAccessor(this.db);
-        }
-        this.meetings = accessor.listMeetings();
-        this.adapter = new MeetingAdapter(MainActivity.this, R.layout.meetings_list_elem, meetings);
+        this.firebaseAccessor = FirebaseAccessor2.getInstance(getApplicationContext());
+        this.adapter = new MeetingAdapter(MainActivity.this,
+                R.layout.meetings_list_elem, new ArrayList<Meeting>());
         this.listView = findViewById(R.id.meetings_list);
         this.configureListView();
+        firebaseAccessor.listMeetings(adapter);
         adapter.notifyDataSetChanged();
     }
 
@@ -210,15 +187,7 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.sync_local_firebase) {
-            syncLocalToFirebase();
-            return true;
-        }
-        else if (id == R.id.sync_firebase_local) {
-            syncFirebaseToLocal();
-            return true;
-        }
-        else if (id == R.id.logout) {
+        if (id == R.id.logout) {
             logout();
         }
         return super.onOptionsItemSelected(item);

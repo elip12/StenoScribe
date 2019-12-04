@@ -1,26 +1,36 @@
 package com.example.stenoscribe.db;
 
-import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 // Room persistence library meetings class definition
-@Entity
 public class Meeting {
+    public String uid;
+    public String title = "New Meeting";
+    public String date;
+    public Long uTime = getTime();
+    public ArrayList<File> files;
+    public ArrayList<String> users;
 
-    public Meeting(String uid) {
+    public Meeting(){}
+
+    public Meeting(String uid, String user) {
         this.uid = uid;
+        this.title = "New Meeting";
+        this.date = getDate();
+        this.uTime = getTime();
+        this.files = new ArrayList<>();
+        this.users = new ArrayList<>();
+        users.add(user);
     }
 
-    @Ignore
-    public Meeting(String uid, String title, String date) {
+    public Meeting(String uid, String title, String date, Long uTime, ArrayList<String> users) {
         this.uid = uid;
         this.title = title;
         this.date = date;
+        this.uTime = uTime;
+        this.users = users;
     }
 
     public String getDate() {
@@ -29,18 +39,7 @@ public class Meeting {
         return date.format(formatter);
     }
 
-    @PrimaryKey()
-    @NonNull
-    public String uid;
-
-    @ColumnInfo(name = "title")
-    @NonNull
-    public String title = "New Meeting";
-
-    @ColumnInfo(name = "date")
-    @NonNull
-    public String date = this.getDate();
-
-    @ColumnInfo(name = "description")
-    public String description;
+    public Long getTime() {
+        return System.currentTimeMillis() / 1000L;
+    }
 }

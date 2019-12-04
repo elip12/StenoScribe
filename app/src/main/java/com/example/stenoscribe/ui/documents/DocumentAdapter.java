@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-class DocumentAdapter extends ArrayAdapter {
+class DocumentAdapter extends ArrayAdapter<File> {
     // context check to stop crashing
     private Context current_context;
     // requires a new array since it cant be passed in directly

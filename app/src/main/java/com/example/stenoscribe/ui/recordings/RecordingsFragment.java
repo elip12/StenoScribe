@@ -8,7 +8,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,26 +22,24 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
 import com.example.stenoscribe.ReadTranscriptionActivity;
 import com.example.stenoscribe.SpeechService;
-import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
-import com.example.stenoscribe.db.FileAccessor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class RecordingsFragment extends Fragment {
-    private AppDatabase db;
-    private FileAccessor accessor;
     private FloatingActionButton fab;
     private RecordingAdapter adapter;
-    private List<File> recordings;
+    private FirebaseAccessor2 accessor;
     private ListView listView;
-    private int lastRecordingId = 0;
     private String meetingId;
     private final String type = "recording";
     private String TAG = "RECORDINGSFRAGMENT";
@@ -70,7 +67,7 @@ public class RecordingsFragment extends Fragment {
 
     // recording adapter for displaying recordings
     public class RecordingAdapter extends ArrayAdapter<File> {
-        private List<File> items;
+        public List<File> items;
 
         private RecordingAdapter(Context context, int rId, List<File> items) {
             super(context, rId, items);
@@ -91,7 +88,8 @@ public class RecordingsFragment extends Fragment {
             if (item != null) {
                 title = v.findViewById(R.id.viewMeetingsListElemTitle);
                 date = v.findViewById(R.id.viewMeetingsListElemDate);
-                String titleString = "Recording " + item.uid;
+                int pos = RecordingsFragment.this.adapter.items.size() - position;
+                String titleString = "Recording " + pos;
                 title.setText(titleString);
                 date.setText(item.datetime);
             }
@@ -166,16 +164,10 @@ public class RecordingsFragment extends Fragment {
                     isBound = false;
 
                     // add new recording into database;
-                    int uid = lastRecordingId + 1;
-                    //Log.d(TAG, "UID " + uid);
+                    String uid = UUID.randomUUID().toString();
                     File file = new File(uid, meetingId, transcription, type);
-                    accessor.insertFile(file, adapter);
-                    recordings = accessor.listFiles(meetingId, type);
-                    if(recordings.size() > 0)
-                        lastRecordingId = recordings.get(0).uid;
-                    adapter.clear();
-                    adapter.addAll(recordings);
-                    adapter.notifyDataSetChanged();
+                    accessor.addFile(file);
+
                     Snackbar.make(view, "Stopping recording", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
@@ -189,29 +181,12 @@ public class RecordingsFragment extends Fragment {
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
-                int uid = RecordingsFragment.this.recordings.get(position).uid;
-                String path = RecordingsFragment.this.accessor.getFilePath(uid, meetingId, type);
+                String path = RecordingsFragment.this.adapter.items.get(position).path;
                 final Intent intent = new Intent(getContext(), ReadTranscriptionActivity.class);
                 intent.putExtra("path", path);
-                intent.putExtra("meetingTitle", "Recording " + uid);
+                int pos = RecordingsFragment.this.adapter.items.size() - position;
+                intent.putExtra("meetingTitle", "Recording " + pos);
                 startActivity(intent);
-            }
-        });
-    }
-
-    // configures pull to refresh for manual refresh
-    public void configurePullToRefresh(View root) {
-        final SwipeRefreshLayout pullToRefresh = root.findViewById(R.id.pull_to_refresh);
-        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                recordings = accessor.listFiles(meetingId, type);
-                if(recordings.size() > 0)
-                    lastRecordingId = recordings.get(0).uid;
-                adapter.clear();
-                adapter.addAll(recordings);
-                adapter.notifyDataSetChanged();
-                pullToRefresh.setRefreshing(false);
             }
         });
     }
@@ -219,24 +194,23 @@ public class RecordingsFragment extends Fragment {
     // instantiates everything and shows listview
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        this.meetingId = ((MeetingDetails)getActivity()).getUid();
+        meetingId = ((MeetingDetails)getActivity()).getUid();
         View root = inflater.inflate(R.layout.fragment_recordings, container, false);
 
-        this.db = AppDatabase.getDatabase(root.getContext());
-        this.accessor = new FileAccessor(this.db);
-        this.fab = root.findViewById(R.id.fab);
-        this.configureFab(root);
+        accessor = FirebaseAccessor2.getInstance(getContext());
 
-        this.recordings = this.accessor.listFiles(this.meetingId, this.type);
-        if(this.recordings.size() > 0)
-            this.lastRecordingId = this.recordings.get(0).uid;
-        this.adapter = new RecordingAdapter(root.getContext(), R.layout.meetings_list_elem, recordings);
-        this.listView = root.findViewById(R.id.recordings_list);
-        this.configureListView();
-        configurePullToRefresh(root);
+        fab = root.findViewById(R.id.fab);
+        configureFab(root);
+
+        adapter = new RecordingAdapter(root.getContext(), R.layout.meetings_list_elem, new ArrayList<File>());
+        listView = root.findViewById(R.id.recordings_list);
+        configureListView();
+
+        accessor.listFiles(meetingId, type, adapter);
         requestPermissions();
         Intent i = new Intent(getActivity(), SpeechService.class);
         getActivity().bindService(i, connection, 0);
+
         return root;
     }
 }

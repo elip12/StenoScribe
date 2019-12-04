@@ -1,10 +1,8 @@
 package com.example.stenoscribe.ui.documents;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,29 +10,33 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
-import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
-import com.example.stenoscribe.db.FileAccessor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentsFragment extends Fragment {
-    private AppDatabase database;
-    private FileAccessor access;
     private String meetingId;
-    List<File> documents;
-    DocumentAdapter docudapt;
+    DocumentAdapter adapter;
+    private FirebaseAccessor2 accessor;
+    private final String type = "document";
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_documents, container, false);
-        this.meetingId = ((MeetingDetails)getActivity()).getUid();
+        meetingId = ((MeetingDetails)getActivity()).getUid();
         final ListView document_viewer = (ListView) root.findViewById(R.id.document_view);
-        this.database = AppDatabase.getDatabase(root.getContext());
-        this.access = new FileAccessor(this.database);
-        this.documents = this.access.listFiles(this.meetingId,"document");
-        this.docudapt = new DocumentAdapter(getContext(), R.layout.document_layout, documents);
-        document_viewer.setAdapter(docudapt);
+        accessor = FirebaseAccessor2.getInstance(getContext());
+
+        adapter = new DocumentAdapter(getContext(), R.layout.document_layout, new ArrayList<File>());
+
+        document_viewer.setAdapter(adapter);
+        accessor.listFiles(meetingId, type, adapter);
+
         FloatingActionButton fab = root.findViewById(R.id.fab_documents);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,13 +58,5 @@ public class DocumentsFragment extends Fragment {
             }
         });
         return root;
-    }
-    @Override
-    public void onResume() {
-        super.onResume();
-        documents = access.listFiles(meetingId,"document");
-        docudapt.clear();
-        docudapt.addAll(documents);
-        docudapt.notifyDataSetChanged();
     }
 }

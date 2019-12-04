@@ -3,60 +3,44 @@ package com.example.stenoscribe.ui.photos;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ExifInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.stenoscribe.AddPhotosActivity;
+import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
-import com.example.stenoscribe.ReadTranscriptionActivity;
-import com.example.stenoscribe.db.AppDatabase;
 import com.example.stenoscribe.db.File;
-import com.example.stenoscribe.db.FileAccessor;
-import com.example.stenoscribe.db.FileOperator;
-import com.example.stenoscribe.ui.recordings.RecordingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.content.Intent;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.UUID;
 
 import static android.app.Activity.RESULT_OK;
 
 public class PhotosFragment extends Fragment {
     //private ImageView image;
-    private AppDatabase db;
-    private FileAccessor accessor;
     private PhotoAdapter adapter;
-    private List<File> photos;
+    private FirebaseAccessor2 accessor;
     private String meetingId;
     private int lastPhotoId = 0;
     private String type = "photo";
     private ListView listView;
-    private PhotosViewModel photosViewModel;
 
     public class PhotoAdapter extends ArrayAdapter<File> {
         private List<File> items;
@@ -70,7 +54,6 @@ public class PhotosFragment extends Fragment {
         public View getView(int position, View v, ViewGroup parent) {
             final File item;
             final ImageView images;
-            final String image;
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -101,51 +84,7 @@ public class PhotosFragment extends Fragment {
                 Intent intent = new Intent(view.getContext(), AddPhotosActivity.class);
                 String meetingId = ((MeetingDetails)getActivity()).getUid();
                 intent.putExtra("meetingId", meetingId);
-                intent.putExtra("lastPhotoId", lastPhotoId);
                 view.getContext().startActivity(intent);
-            }
-        });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        final int PHOTO_CODE = 3;
-
-        switch (requestCode) {
-            case PHOTO_CODE: {
-                if (resultCode == RESULT_OK && data != null) {
-                    int uid = this.lastPhotoId + 1;
-                    ArrayList<String> result = data.getStringArrayListExtra(
-                            RecognizerIntent.EXTRA_RESULTS);
-                    String image = result.get(0);
-                    File file = new File(uid, this.meetingId, image, this.type);
-                    this.accessor.insertFile(file, adapter);
-                    photos = accessor.listFiles(meetingId, type);
-                    if(photos.size() > 0)
-                        lastPhotoId = photos.get(0).uid;
-                    adapter.clear();
-                    adapter.addAll(photos);
-                    adapter.notifyDataSetChanged();
-                }
-                break;
-            }
-        }
-    }
-
-    public void configurePullToRefresh(View root) {
-        final SwipeRefreshLayout pullToRefresh = root.findViewById(R.id.pull_to_refresh);
-        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                photos = accessor.listFiles(meetingId, type);
-                if(photos.size() > 0)
-                    lastPhotoId = photos.get(0).uid;
-                adapter.clear();
-                adapter.addAll(photos);
-                adapter.notifyDataSetChanged();
-                pullToRefresh.setRefreshing(false);
             }
         });
     }
@@ -159,21 +98,19 @@ public class PhotosFragment extends Fragment {
         this.meetingId = ((MeetingDetails)getActivity()).getUid();
         View root = inflater.inflate(R.layout.fragment_photos, container, false);
         //image = root.findViewById(R.id.cameraIV);
-        this.db = AppDatabase.getDatabase(root.getContext());
-        this.accessor = new FileAccessor(this.db);
         configureFab(root);
 
-        this.photos = this.accessor.listFiles(this.meetingId, this.type);
-        if(this.photos.size() > 0)
-            this.lastPhotoId = this.photos.get(0).uid;
-        this.adapter = new PhotosFragment.PhotoAdapter(root.getContext(), R.layout.meetings_list_elem, photos);
-        this.listView = root.findViewById(R.id.photos_list);
-        this.configureListView();
-        configurePullToRefresh(root);
+        accessor = FirebaseAccessor2.getInstance(getContext());
+
+        adapter = new PhotosFragment.PhotoAdapter(root.getContext(),
+                R.layout.meetings_list_elem, new ArrayList<File>());
+        listView = root.findViewById(R.id.photos_list);
+        configureListView();
+
+        accessor.listFiles(meetingId, type, adapter);
+
         return root;
     }
-
-
 
     public Bitmap StringToBitMap(String encodedString){
         try{

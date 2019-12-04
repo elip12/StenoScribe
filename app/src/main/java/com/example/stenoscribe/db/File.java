@@ -1,32 +1,36 @@
 package com.example.stenoscribe.db;
 
-import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.Ignore;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 // File object for storing recordings, documents, and photos
-@Entity(primaryKeys = {"uid", "meeting_id", "type"})
 public class File {
+    public String uid;
+    public String meetingId;
+    public String path;
+    public String type;
+    public String datetime;
+    public Long uTime;
 
-    public File(int uid, String meeting_id, String path, String type) {
+    public File(){}
+
+    public File(String uid, String meetingId, String path, String type) {
         this.uid = uid;
-        this.meeting_id = meeting_id;
+        this.meetingId = meetingId;
         this.path = path;
         this.type = type;
         this.datetime = getDate();
+        this.uTime = getTime();
     }
 
-    @Ignore
-    public File(int uid, String meeting_id, String path, String type, String datetime) {
+    public File(String uid, String meetingId, String path, String type, String date, Long time) {
         this.uid = uid;
-        this.meeting_id = meeting_id;
+        this.meetingId = meetingId;
         this.path = path;
         this.type = type;
-        this.datetime = datetime;
+        this.datetime = date;
+        this.uTime = time;
     }
 
     public String getDate() {
@@ -35,23 +39,9 @@ public class File {
         return date.format(formatter);
     }
 
-    @NonNull
-    @ColumnInfo(name = "uid")
-    public int uid;
+    public Long getTime() {
+        return System.currentTimeMillis() / 1000L;
+    }
 
-    @ColumnInfo(name = "meeting_id")
-    @NonNull
-    public String meeting_id;
 
-    @ColumnInfo(name = "path")
-    @NonNull
-    public String path;
-
-    @ColumnInfo(name = "type")
-    @NonNull
-    public String type;
-
-    @ColumnInfo(name = "datetime")
-    @NonNull
-    public String datetime;
 }
