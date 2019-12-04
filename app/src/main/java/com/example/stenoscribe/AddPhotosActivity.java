@@ -2,7 +2,11 @@ package com.example.stenoscribe;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.util.Base64;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -29,17 +33,18 @@ import java.io.InputStream;
 import java.util.UUID;
 
 public class AddPhotosActivity extends AppCompatActivity  {
-    TextView text;
     FloatingActionButton cam;
     FloatingActionButton gallery;
     private FirebaseAccessor2 accessor;
-    private int lastPhotoId;
     private String type = "photo";
     private String meetingId;
     private File file;
-    private int uid;
-
-    ImageView images;
+    private final int REQUEST_IMAGE_CAPTURE = 100;
+    private final int REQUEST_IMAGE_UPLOAD = 101;
+    private final int WRITE_REQUEST_CODE = 102;
+    String uid;
+    String path;
+    Uri photoUri;
 
     public void configureActionBar(String title) {
         TextView actionBarText;
@@ -60,17 +65,46 @@ public class AddPhotosActivity extends AppCompatActivity  {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case WRITE_REQUEST_CODE:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                    uid = UUID.randomUUID().toString();
+                    path = meetingId + "/" + uid;
+                    PhotoModel pm = new PhotoModel(getApplicationContext());
+                    java.io.File image = pm.createImageFile(uid);
+
+                    if (image != null) {
+                        Uri photoURI = FileProvider.getUriForFile(getApplicationContext(),
+                                "com.example.android.fileprovider",
+                                image);
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                        AddPhotosActivity.this.photoUri = photoURI;
+
+                        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                        }
+                }
+                else{
+                    //Denied.
+                }
+                break;
+                }
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_photos);
 
         configureActionBar("New Photo");
 
-        text = findViewById(R.id.textView);
         cam = findViewById(R.id.camera);
         gallery = findViewById(R.id.gallery);
-        this.meetingId = getIntent().getExtras().getString("meetingId");
-        images = findViewById(R.id.imageView);
+        this.meetingId = getIntent().getStringExtra("meetingId");
         accessor = FirebaseAccessor2.getInstance(getApplicationContext());
 
 
@@ -78,9 +112,27 @@ public class AddPhotosActivity extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
 
+                String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                requestPermissions(permissions, WRITE_REQUEST_CODE);
+
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
-                startActivityForResult(takePictureIntent, 0);
+
+                uid = UUID.randomUUID().toString();
+                path = meetingId + "/" + uid;
+                PhotoModel pm = new PhotoModel(getApplicationContext());
+                java.io.File image = pm.createImageFile(uid);
+
+                if (image != null) {
+                    Uri photoURI = FileProvider.getUriForFile(getApplicationContext(),
+                            "com.example.android.fileprovider",
+                            image);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    AddPhotosActivity.this.photoUri = photoURI;
+
+                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    }
+                }
             }
         });
 
@@ -88,8 +140,7 @@ public class AddPhotosActivity extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                //intent.setType("image/*");
-                startActivityForResult(intent, 101);
+                startActivityForResult(intent, REQUEST_IMAGE_UPLOAD);
             }
         });
 
@@ -98,7 +149,7 @@ public class AddPhotosActivity extends AppCompatActivity  {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
 
-        if(requestCode == 101 && data != null && resultCode != RESULT_CANCELED){
+        if(requestCode == REQUEST_IMAGE_UPLOAD && data != null && resultCode != RESULT_CANCELED){
             Uri imageUri = data.getData();
             Bitmap bitmap;
             try {
@@ -115,11 +166,17 @@ public class AddPhotosActivity extends AppCompatActivity  {
             accessor.addFile(file);
         }
 
-        else if(requestCode == 0 && data != null && resultCode != RESULT_CANCELED){
-            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+        else if(requestCode == REQUEST_IMAGE_CAPTURE && data != null && resultCode != RESULT_CANCELED){
+            Bitmap bitmap;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), photoUri);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Failed to get image", Toast.LENGTH_LONG).show();
+                return;
+            }
 
-            String uid = UUID.randomUUID().toString();
-            String path = meetingId + "/" + uid + ".jpg";
+            path += ".jpg";
             file = new File(uid, meetingId, path, type);
             accessor.addImage(path, bitmap);
             accessor.addFile(file);
