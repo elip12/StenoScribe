@@ -1,6 +1,7 @@
 package com.example.stenoscribe;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -71,10 +72,30 @@ public class AddPhotosActivity extends AppCompatActivity  {
 
     ImageView images;
 
+    public void configureActionBar(String title) {
+        TextView actionBarText;
+        final ViewGroup actionBarLayout;
+        final ActionBar actionBar;
+
+        actionBarLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.action_bar_noneditable, null);
+
+        actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left_black_24dp);
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setCustomView(actionBarLayout);
+
+        actionBarText = findViewById(R.id.action_bar_textview);
+        actionBarText.setText(title);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_photos);
+
+        configureActionBar("New Photo");
 
         text = findViewById(R.id.textView);
         cam = findViewById(R.id.camera);

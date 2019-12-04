@@ -239,10 +239,4 @@ public class RecordingsFragment extends Fragment {
         getActivity().bindService(i, connection, 0);
         return root;
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        getActivity().unbindService(connection);
-    }
 }

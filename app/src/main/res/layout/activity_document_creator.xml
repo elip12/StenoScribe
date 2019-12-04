@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
     android:background="@drawable/back"
     android:theme="@style/LoginTheme"
-    android:gravity="center_horizontal"
     android:orientation="vertical"
     tools:context=".ui.documents.DocumentCreator">
 
     <TextView
-        android:id="@+id/name_text"
+        android:layout_marginTop="100dp"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Document title"
+        android:text="Title"
         android:theme="@style/LoginTheme"
-        android:textColor="@color/colorGray" />
+        android:textColor="@color/colorAccent"
+        android:layout_marginLeft="40dp"/>
 
     <EditText
+        android:layout_marginLeft="40dp"
+        android:backgroundTint="@color/colorAccent"
         android:id="@+id/name_input"
-        android:layout_width="match_parent"
+        android:layout_width="330dp"
         android:layout_height="wrap_content"
-        android:theme="@style/LoginTheme"
-        android:background="@android:color/white"
-        android:textColor="@color/colorDarkGray">
+        android:textColor="@color/colorGray">
     </EditText>
 
     <TextView
-        android:id="@+id/url_text"
+        android:textSize="12sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="38dp"
         android:text="URL"
-        android:theme="@style/LoginTheme"
-        android:textColor="@color/colorGray" />
+        android:textColor="@color/colorAccent"
+        android:layout_marginLeft="40dp"/>
 
     <EditText
+        android:layout_marginLeft="40dp"
+        android:backgroundTint="@color/colorAccent"
         android:id="@+id/url_input"
-        android:layout_width="match_parent"
+        android:layout_width="330dp"
+        android:layout_marginBottom="10dp"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:theme="@style/LoginTheme"
-        android:textColor="@color/colorDarkGray">
+        android:textColor="@color/colorGray">
     </EditText>
 
     <Button
+        android:layout_gravity="center|right"
+        android:layout_marginRight="100dp"
         android:id="@+id/document_creator"
-        android:layout_width="100dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="60dp"
-        android:background="@color/colorDarkGray"
+        android:layout_width="80dp"
+        android:layout_height="35dp"
+        android:textSize="12sp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/roundbutton"
         android:gravity="center"
-        android:text="Create Document"
-        android:theme="@style/LoginTheme"
+        android:text="Create"
         android:textColor="@color/colorGray" />
 </LinearLayout>

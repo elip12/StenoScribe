@@ -13,5 +13,6 @@
         android:background="@color/colorDarkGray"
         android:minWidth="250dp"
         android:inputType="text"
+        android:textSize="24sp"
         />
 </LinearLayout>

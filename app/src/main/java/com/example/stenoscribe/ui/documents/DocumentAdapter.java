@@ -35,10 +35,10 @@ class DocumentAdapter extends ArrayAdapter {
         // this stops it from crashing.
         if(current_view == null) {
             LayoutInflater vi = (LayoutInflater)current_context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            current_view = vi.inflate(R.layout.document_layout, null);
+            current_view = vi.inflate(R.layout.meetings_list_elem, null);
         }
         File current_file = files.get(position);
-        TextView file_title = (TextView) current_view.findViewById(R.id.document_title);
+        TextView file_title = (TextView) current_view.findViewById(R.id.viewMeetingsListElemTitle);
         String urlandname = current_file.path;
         System.out.println(urlandname);
         String[] parsed = urlandname.split(" ////// ",2);
@@ -46,7 +46,7 @@ class DocumentAdapter extends ArrayAdapter {
         System.out.println(parsed[1]);
         System.out.println(Arrays.toString(parsed));
         file_title.setText(name);
-        TextView file_date = (TextView) current_view.findViewById(R.id.document_date);
+        TextView file_date = (TextView) current_view.findViewById(R.id.viewMeetingsListElemDate);
         file_date.setText(current_file.datetime);
         return current_view;
     }

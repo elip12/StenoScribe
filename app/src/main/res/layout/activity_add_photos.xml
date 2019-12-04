@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="300dp"
-        android:textSize="28sp"
+        android:textSize="18sp"
         android:textColor="@color/colorGray"
         android:text="@string/photo_choice" />
 

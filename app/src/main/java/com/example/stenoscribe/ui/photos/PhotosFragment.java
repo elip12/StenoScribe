@@ -82,7 +82,7 @@ public class PhotosFragment extends Fragment {
                 images = v.findViewById(R.id.imageView);
                 //images.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 120, 120, false));
 
-                images.setRotation(getCameraPhotoOrientation(item.path));
+                images.setRotation(90);
                 Bitmap bitmap = StringToBitMap(item.path);
                 Bitmap bMapScaled = Bitmap.createScaledBitmap(bitmap, 120, 120, true);
                 images.setImageBitmap(bMapScaled);
@@ -187,35 +187,5 @@ public class PhotosFragment extends Fragment {
         }
     }
 
-    public static int getCameraPhotoOrientation(String imagePath) {
-        int rotate = 90;
-        try {
-            ExifInterface exif  = null;
-            try {
-                exif = new ExifInterface(imagePath);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            int orientation = exif.getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION, 0);
-            switch (orientation) {
 
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    rotate = 270;
-                    break;
-
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    rotate = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    rotate = 0;
-                    break;
-                default:
-                    rotate = 90;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return rotate;
-    }
 }

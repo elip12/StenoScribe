@@ -9,7 +9,9 @@
     android:background="@drawable/back">
     <EditText
         android:id="@+id/new_user"
-        android:layout_width="300dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_width="250dp"
         android:layout_height="50dp"
         android:inputType="text"
         android:layout_alignParentTop="true"
@@ -17,21 +19,26 @@
         android:textColor="@color/colorGray"
         />
     <Button
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
         android:id="@+id/add_user"
-        android:layout_width="100dp"
+        android:layout_width="80dp"
         android:layout_height="45dp"
         android:layout_alignParentRight="true"
         android:textColor="@color/colorGray"
         android:text="Add User"
-        android:background="@color/colorDarkGray"
+        android:background="@drawable/roundbutton"
         />
     <View
         android:id="@+id/hline1"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:layout_width="match_parent"
-        android:layout_height="0.5dp"
+        android:layout_height="1dp"
         android:layout_marginTop="5dp"
         android:layout_below="@id/add_user"
-        android:background="@color/colorGray" />
+        android:background="@color/colorDarkGray" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/pull_to_refresh"
         android:layout_width="match_parent"
