@@ -3,7 +3,9 @@ package com.example.stenoscribe.ui.photos;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -16,22 +18,17 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.stenoscribe.AddPhotosActivity;
 import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.MeetingDetails;
 import com.example.stenoscribe.R;
-import com.example.stenoscribe.ReadTranscriptionActivity;
 import com.example.stenoscribe.ViewPhotoActivity;
 import com.example.stenoscribe.db.File;
-import com.example.stenoscribe.ui.recordings.RecordingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.content.Intent;
-import android.widget.ListView;
+import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,12 +36,12 @@ import java.util.UUID;
 import static android.app.Activity.RESULT_OK;
 
 public class PhotosFragment extends Fragment {
-    //private ImageView image;
     private PhotoAdapter adapter;
     private FirebaseAccessor2 accessor;
     private String meetingId;
     private String type = "photo";
     private GridView gridView;
+    private final int REQUEST_IMAGE_UPLOAD = 101;
 
     public class PhotoAdapter extends ArrayAdapter<File> {
         private List<File> items;
@@ -64,19 +61,34 @@ public class PhotosFragment extends Fragment {
                 v = vi.inflate(R.layout.photo_list_elem, null);
             }
             item = items.get(position);
-            //Bitmap bitmap = StringToBitMap(item.path);
             if (item != null) {
                 image = v.findViewById(R.id.imageView);
-                //images.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 120, 120, false));
-
-//                image.setRotation(90);
                 accessor.viewImage(item.path, image);
-//                Bitmap bitmap = StringToBitMap(item.path);
-//                Bitmap bMapScaled = Bitmap.createScaledBitmap(bitmap, 120, 120, true);
-//                image.setImageBitmap(bMapScaled);
-//                image.setAdjustViewBounds(true);
             }
             return v;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == REQUEST_IMAGE_UPLOAD && data != null && resultCode == RESULT_OK){
+            Uri imageUri = data.getData();
+            Bitmap bitmap;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(), "Could not retrieve image", Toast.LENGTH_LONG).show();
+                return;
+            }
+            String uid = UUID.randomUUID().toString();
+            String path = meetingId + "/" + uid + ".jpg";
+            File file = new File(uid, meetingId, path, type);
+            accessor.addImage(path, bitmap);
+            accessor.addFile(file);
+        }
+        else {
+            Toast.makeText(getContext(), "Could not retrieve image", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -86,10 +98,8 @@ public class PhotosFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), AddPhotosActivity.class);
-                String meetingId = ((MeetingDetails)getActivity()).getUid();
-                intent.putExtra("meetingId", meetingId);
-                view.getContext().startActivity(intent);
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQUEST_IMAGE_UPLOAD);
             }
         });
     }
