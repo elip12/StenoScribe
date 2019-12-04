@@ -21,7 +21,6 @@ import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.R;
 import com.example.stenoscribe.db.File;
 
-import java.util.List;
 import java.util.UUID;
 
 public class DocumentCreator extends AppCompatActivity {
@@ -70,8 +69,6 @@ public class DocumentCreator extends AppCompatActivity {
         final EditText urltext = findViewById(R.id.url_input);
         Button fab = findViewById(R.id.document_creator);
         this.meetingId = this.getmeetingid();
-        //List<File> document_library = this.access.listFiles(this.meetingId,"document");
-        //this.uid = document_library.size();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,21 +86,26 @@ public class DocumentCreator extends AppCompatActivity {
                             accessor.addFile(new_file);
                             finish();
                         } else {
-                            Toast.makeText(DocumentCreator.this, "Invalid URL", Toast.LENGTH_LONG).show();
+                            Toast.makeText(DocumentCreator.this, "Invalid URL",
+                                    Toast.LENGTH_LONG).show();
                         }
                     } else {
-                        Toast.makeText(DocumentCreator.this, "Invalid Name", Toast.LENGTH_LONG).show();
+                        Toast.makeText(DocumentCreator.this, "Invalid Name",
+                                Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(DocumentCreator.this, "No Internet Connection", Toast.LENGTH_LONG).show();
+                    Toast.makeText(DocumentCreator.this, "No Internet Connection",
+                            Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
+
     private String getmeetingid() {
         Intent intent = getIntent();
         return intent.getStringExtra("id");
     }
+
     private boolean isNetworkAvailable() {
         ConnectivityManager internet = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = internet.getActiveNetworkInfo();

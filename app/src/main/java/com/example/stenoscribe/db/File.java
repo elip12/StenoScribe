@@ -2,7 +2,6 @@ package com.example.stenoscribe.db;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 // File object for storing recordings, documents, and photos
 public class File {

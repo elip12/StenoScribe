@@ -35,7 +35,7 @@ public class SpeechService extends Service implements RecognitionListener {
 
         // Create notification with various properties
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setSmallIcon(R.drawable.ic_notification_mic)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_LOW)

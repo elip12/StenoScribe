@@ -2,12 +2,9 @@ package com.example.stenoscribe.ui.photos;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.speech.RecognizerIntent;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +48,7 @@ public class PhotosFragment extends Fragment {
             this.items = items;
         }
 
+        // gridview only views thumbnails to save memory
         @Override
         public View getView(int position, View v, ViewGroup parent) {
             final File item;
@@ -63,13 +61,13 @@ public class PhotosFragment extends Fragment {
             item = items.get(position);
             if (item != null) {
                 image = v.findViewById(R.id.imageView);
-
                 accessor.viewImage("thumb/" + item.path, image);
             }
             return v;
         }
     }
 
+    // FAB opens gallery and uploads thumbnail and full size image to FB storage
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == REQUEST_IMAGE_UPLOAD && data != null && resultCode == RESULT_OK){
@@ -128,16 +126,14 @@ public class PhotosFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         this.meetingId = ((MeetingDetails)getActivity()).getUid();
         View root = inflater.inflate(R.layout.fragment_photos, container, false);
-        //image = root.findViewById(R.id.cameraIV);
         configureFab(root);
-
-        accessor = FirebaseAccessor2.getInstance(getContext());
 
         adapter = new PhotosFragment.PhotoAdapter(root.getContext(),
                 R.layout.meetings_list_elem, new ArrayList<File>());
         gridView = root.findViewById(R.id.photos_list);
         configureListView();
 
+        accessor = FirebaseAccessor2.getInstance(getContext());
         accessor.listFiles(meetingId, type, adapter);
 
         return root;

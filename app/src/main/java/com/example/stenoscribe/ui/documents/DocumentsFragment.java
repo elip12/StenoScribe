@@ -18,11 +18,10 @@ import com.example.stenoscribe.db.File;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class DocumentsFragment extends Fragment {
     private String meetingId;
-    DocumentAdapter adapter;
+    private DocumentAdapter adapter;
     private FirebaseAccessor2 accessor;
     private final String type = "document";
 
@@ -30,10 +29,9 @@ public class DocumentsFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_documents, container, false);
         meetingId = ((MeetingDetails)getActivity()).getUid();
         final ListView document_viewer = root.findViewById(R.id.document_view);
+
         accessor = FirebaseAccessor2.getInstance(getContext());
-
         adapter = new DocumentAdapter(getContext(), R.layout.document_layout, new ArrayList<File>());
-
         document_viewer.setAdapter(adapter);
         accessor.listFiles(meetingId, type, adapter);
 
@@ -46,6 +44,7 @@ public class DocumentsFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
         document_viewer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -57,6 +56,7 @@ public class DocumentsFragment extends Fragment {
                 startActivity(browserIntent);
             }
         });
+
         return root;
     }
 }

@@ -1,8 +1,6 @@
 package com.example.stenoscribe.ui.recordings;
 
 import android.Manifest;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +21,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.MeetingDetails;
@@ -52,6 +49,7 @@ public class RecordingsFragment extends Fragment {
     private boolean isBound = false;
     private boolean recordingPermission = true;
     private boolean internetPermission = true;
+
     // connection to service for recording
     private ServiceConnection connection = new ServiceConnection() {
         @Override

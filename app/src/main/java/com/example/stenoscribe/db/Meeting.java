@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-// Room persistence library meetings class definition
+// Meeting object
 public class Meeting {
     public String uid;
     public String title = "New Meeting";

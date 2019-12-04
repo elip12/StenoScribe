@@ -3,8 +3,6 @@ package com.example.stenoscribe;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -21,7 +19,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,8 +34,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FirebaseAccessor2 {
@@ -120,7 +115,7 @@ public class FirebaseAccessor2 {
                             adapter.addAll(files);
                             adapter.notifyDataSetChanged();
                         } else {
-                            Log.d(TAG, "Current data: null");
+                            //Log.d(TAG, "Current data: null");
                         }
                     }
                 });
@@ -139,7 +134,7 @@ public class FirebaseAccessor2 {
                         if (task.isSuccessful()) {
                             // this should have only one meeting in it
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                //Log.d(TAG, document.getId() + " => " + document.getData());
                                 Map<String, Object> data = document.getData();
                                 users.addAll((ArrayList<String>)data.get("users"));
                                 if (remove)
@@ -193,13 +188,13 @@ public class FirebaseAccessor2 {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+                        //Log.d(TAG, "DocumentSnapshot successfully updated!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error updating document", e);
+                        //Log.w(TAG, "Error updating document", e);
                     }
                 });
     }
@@ -214,21 +209,21 @@ public class FirebaseAccessor2 {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
-                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                //Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                 ArrayList<File> files = document.toObject(Meeting.class).files;
                                 for (File file: files) {
-                                    Log.d(TAG, file.datetime);
+                                    //Log.d(TAG, file.datetime);
                                 }
                                 files.add(file);
                                 for (File file: files) {
-                                    Log.d(TAG, file.datetime);
+                                    //Log.d(TAG, file.datetime);
                                 }
                                 updateMeeting(file.meetingId, "files", files);
                             } else {
-                                Log.d(TAG, "No such document");
+                                //Log.d(TAG, "No such document");
                             }
                         } else {
-                            Log.d(TAG, "get failed with ", task.getException());
+                            //Log.d(TAG, "get failed with ", task.getException());
                         }
                     }
                 });
@@ -248,13 +243,13 @@ public class FirebaseAccessor2 {
                         }
 
                         if (snapshot != null && snapshot.exists()) {
-                            Log.d(TAG, "Current data: " + snapshot.getData());
+                            //Log.d(TAG, "Current data: " + snapshot.getData());
                             Meeting meeting = snapshot.toObject(Meeting.class);
                             adapter.clear();
                             adapter.addAll(meeting.users);
                             adapter.notifyDataSetChanged();
                         } else {
-                            Log.d(TAG, "Current data: null");
+                            //Log.d(TAG, "Current data: null");
                         }
                     }
                 });

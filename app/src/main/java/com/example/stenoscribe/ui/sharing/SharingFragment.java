@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.stenoscribe.FirebaseAccessor2;
 import com.example.stenoscribe.MeetingDetails;
@@ -31,7 +30,6 @@ import java.util.List;
 public class SharingFragment extends Fragment {
     private SharingAdapter adapter;
     private FirebaseAccessor2 firebaseAccessor;
-    private List<String> users;
     private ListView listView;
     private String meetingId;
     private String TAG = "SHARINGFRAGMENT";

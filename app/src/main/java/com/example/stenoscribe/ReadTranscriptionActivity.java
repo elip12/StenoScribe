@@ -40,6 +40,7 @@ public class ReadTranscriptionActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // display transcription
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

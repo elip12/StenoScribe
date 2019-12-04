@@ -10,7 +10,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.stenoscribe.db.Meeting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.ActionBar;
@@ -20,7 +19,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 public class MeetingDetails extends AppCompatActivity {
-
     private EditText actionBarText;
     private String uid;
     private String title;
@@ -29,10 +27,6 @@ public class MeetingDetails extends AppCompatActivity {
     // method allowing fragments to get the uid of their parent meeting
     public String getUid() {
         return this.uid;
-    }
-
-    public String getMeetingTitle() {
-        return this.title;
     }
 
     // Make actionbar title editable, and show back button. When user finishes editing,
