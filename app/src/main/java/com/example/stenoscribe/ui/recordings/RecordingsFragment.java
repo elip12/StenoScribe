@@ -1,6 +1,8 @@
 package com.example.stenoscribe.ui.recordings;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,7 +146,7 @@ public class RecordingsFragment extends Fragment {
                         Intent i = new Intent(getActivity(), SpeechService.class);
                         //Log.d(TAG, "telling service to start");
                         getActivity().startService(i);
-                        getActivity().bindService(i, connection, Context.BIND_AUTO_CREATE);
+                        getActivity().bindService(i, connection, 0);
                         Snackbar.make(view, "Recording", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
