@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="50dp"
         android:layout_marginBottom="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
         android:id="@+id/viewMeetingsListElemTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,8 +16,9 @@
         android:textSize="18sp"/>
     <TextView
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="50dp"
         android:layout_marginBottom="10dp"
+        android:layout_below="@+id/viewMeetingsListElemTitle"
         android:id="@+id/viewMeetingsListElemDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +28,19 @@
         android:layout_marginRight="20dp"
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:layout_below="@+id/viewMeetingsListElemDate"
         android:background="@color/colorDarkGray"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"/>
-</LinearLayout>
+    <ImageButton
+        android:focusable="false"
+        android:layout_marginTop="10dp"
+        android:id="@+id/button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginRight="20dp"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/back"
+        android:src="@drawable/ic_delete_black_24dp"
+        />
+</RelativeLayout>

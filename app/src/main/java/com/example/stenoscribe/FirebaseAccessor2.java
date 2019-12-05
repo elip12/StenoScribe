@@ -43,6 +43,10 @@ public class FirebaseAccessor2 {
     private static FirebaseAccessor2 instance;
     private Context context;
 
+    public String getEmail() {
+        return auth.getCurrentUser().getEmail();
+    }
+
     // Used to upload and download meetings from firebase
     private FirebaseAccessor2(Context context) {
         this.db = FirebaseFirestore.getInstance();
@@ -211,13 +215,39 @@ public class FirebaseAccessor2 {
                             if (document.exists()) {
                                 //Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                 ArrayList<File> files = document.toObject(Meeting.class).files;
-                                for (File file: files) {
-                                    //Log.d(TAG, file.datetime);
-                                }
                                 files.add(file);
-                                for (File file: files) {
-                                    //Log.d(TAG, file.datetime);
+                                updateMeeting(file.meetingId, "files", files);
+                            } else {
+                                //Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            //Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void removeFile(final File file) {
+        db.collection("meetings")
+                .document(file.meetingId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                //Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                ArrayList<File> files = document.toObject(Meeting.class).files;
+                                File torm = null;
+                                for (File test: files) {
+                                    if (test.uid.equals(file.uid))
+                                        torm = test;
                                 }
+                                if (torm != null)
+                                    files.remove(torm);
+                                //else
+                                  //  Log.d(TAG, "file not in list");
                                 updateMeeting(file.meetingId, "files", files);
                             } else {
                                 //Log.d(TAG, "No such document");
@@ -294,5 +324,40 @@ public class FirebaseAccessor2 {
             }
         });
 
+    }
+
+    public void deleteImage(String path) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        StorageReference imageRef = storageRef.child(path);
+        imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // File deleted successfully
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
+    public void deleteMeeting(Meeting meeting) {
+        db.collection("meetings")
+                .document(meeting.uid)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        //Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
     }
 }

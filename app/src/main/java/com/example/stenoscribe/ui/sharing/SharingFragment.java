@@ -49,14 +49,33 @@ public class SharingFragment extends Fragment {
             final ImageButton button;
 
             if (v == null) {
-                LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.sharing_list_element, null);
             }
+
             item = items.get(position);
             if (item != null) {
                 email = v.findViewById(R.id.email);
                 email.setText(item);
                 button = v.findViewById(R.id.button);
+                button.setVisibility(View.INVISIBLE);
+
+                v.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        if (!item.equals(firebaseAccessor.getEmail())) {
+                            button.setVisibility(View.VISIBLE);
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        button.setVisibility(View.INVISIBLE);
+                    }
+                });
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

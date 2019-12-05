@@ -2,6 +2,7 @@ package com.example.stenoscribe;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
             final Meeting item;
             final TextView title;
             final TextView date;
+            final ImageButton button;
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -60,8 +63,40 @@ public class MainActivity extends AppCompatActivity {
             if (item != null) {
                 title = v.findViewById(R.id.viewMeetingsListElemTitle);
                 date = v.findViewById(R.id.viewMeetingsListElemDate);
+                button = v.findViewById(R.id.button);
+                button.setFocusable(false);
                 title.setText(item.title);
                 date.setText(item.date);
+                button.setVisibility(View.INVISIBLE);
+
+                v.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                            button.setVisibility(View.VISIBLE);
+                            return true;
+                    }
+                });
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (button.getVisibility() == View.VISIBLE)
+                            button.setVisibility(View.INVISIBLE);
+                        else {
+                            final Intent intent;
+
+                            intent = new Intent(getApplicationContext(), MeetingDetails.class);
+                            intent.putExtra("uid", item.uid);
+                            intent.putExtra("title", item.title);
+                            startActivity(intent);
+                        }
+                    }
+                });
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        firebaseAccessor.deleteMeeting(item);
+                    }
+                });
             }
             return v;
         }
@@ -124,19 +159,6 @@ public class MainActivity extends AppCompatActivity {
     // sets the listview to have onclick listeners for clicking on meetings
     public void configureListView() {
         listView.setAdapter(this.adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
-                final Meeting item;
-                final Intent intent;
-
-                item = (Meeting) adapter.getItemAtPosition(position);
-                intent = new Intent(getApplicationContext(), MeetingDetails.class);
-                intent.putExtra("uid", item.uid);
-                intent.putExtra("title", item.title);
-                startActivity(intent);
-            }
-        });
     }
 
     // reinstantiates the db and acccessor if need be, and refreshes the listview

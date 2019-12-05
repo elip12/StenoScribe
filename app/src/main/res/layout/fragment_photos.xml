@@ -12,7 +12,6 @@
         android:id="@+id/photos_list"
         android:layout_margin="20dp"
         android:numColumns="3"
-        android:gravity="top"
         android:verticalSpacing="20dp"
         android:horizontalSpacing="20dp"
         android:layout_width="match_parent"

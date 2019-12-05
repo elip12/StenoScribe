@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,10 +77,11 @@ public class RecordingsFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, View v, ViewGroup parent) {
+        public View getView(final int position, View v, ViewGroup parent) {
             final File item;
             final TextView title;
             final TextView date;
+            final ImageButton button;
 
             if (v == null) {
                 LayoutInflater vi = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -89,10 +91,43 @@ public class RecordingsFragment extends Fragment {
             if (item != null) {
                 title = v.findViewById(R.id.viewMeetingsListElemTitle);
                 date = v.findViewById(R.id.viewMeetingsListElemDate);
-                int pos = RecordingsFragment.this.adapter.items.size() - position;
+                int pos = items.size() - position;
                 String titleString = "Recording " + pos;
                 title.setText(titleString);
                 date.setText(item.datetime);
+
+                button = v.findViewById(R.id.button);
+                button.setFocusable(false);
+                button.setVisibility(View.INVISIBLE);
+
+                v.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        button.setVisibility(View.VISIBLE);
+                        return true;
+                    }
+                });
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (button.getVisibility() == View.VISIBLE)
+                            button.setVisibility(View.INVISIBLE);
+                        else {
+                            String path = item.path;
+                            final Intent intent = new Intent(getContext(), ReadTranscriptionActivity.class);
+                            intent.putExtra("path", path);
+                            int pos = items.size() - position;
+                            intent.putExtra("meetingTitle", "Recording " + pos);
+                            startActivity(intent);
+                        }
+                    }
+                });
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        accessor.removeFile(item);
+                    }
+                });
             }
             return v;
         }

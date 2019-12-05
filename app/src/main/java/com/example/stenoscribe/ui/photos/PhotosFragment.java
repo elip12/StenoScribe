@@ -11,9 +11,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.stenoscribe.FirebaseAccessor2;
@@ -39,6 +41,10 @@ public class PhotosFragment extends Fragment {
     private String type = "photo";
     private GridView gridView;
     private final int REQUEST_IMAGE_UPLOAD = 101;
+    private FloatingActionButton fab;
+    private boolean deletePossible = false;
+    private File selectedFile = null;
+    private ImageView selectedView = null;
 
     public class PhotoAdapter extends ArrayAdapter<File> {
         private List<File> items;
@@ -62,6 +68,38 @@ public class PhotosFragment extends Fragment {
             if (item != null) {
                 image = v.findViewById(R.id.imageView);
                 accessor.viewImage("thumb/" + item.path, image);
+
+                image.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        deletePossible = true;
+                        selectedFile = item;
+                        selectedView = image;
+                        fab.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_delete_white_24dp));
+                        image.setPadding(3,3,3,3);
+
+                        return true;
+                    }
+                });
+
+                image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (deletePossible) {
+                            deletePossible = false;
+                            selectedFile = null;
+                            selectedView = null;
+                            image.setPadding(0,0,0,0);
+                            fab.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_add_black_24dp));
+                        }
+                        else {
+                            String path = item.path;
+                            final Intent intent = new Intent(getContext(), ViewPhotoActivity.class);
+                            intent.putExtra("path", path);
+                            startActivity(intent);
+                        }
+                    }
+                });
             }
             return v;
         }
@@ -99,27 +137,30 @@ public class PhotosFragment extends Fragment {
 
 
     public void configureFab(View root) {
-        FloatingActionButton fab = root.findViewById(R.id.fab_photos);
+        fab = root.findViewById(R.id.fab_photos);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, REQUEST_IMAGE_UPLOAD);
+                if (deletePossible) {
+                    accessor.removeFile(selectedFile);
+                    accessor.deleteImage(selectedFile.path);
+                    accessor.deleteImage("thumb/" + selectedFile.path);
+                    deletePossible = false;
+                    selectedFile = null;
+                    selectedView.setPadding(0,0,0,0);
+                    selectedView = null;
+                    fab.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_add_black_24dp));
+                }
+                else {
+                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, REQUEST_IMAGE_UPLOAD);
+                }
             }
         });
     }
 
     public void configureListView() {
         gridView.setAdapter(this.adapter);
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
-                String path = PhotosFragment.this.adapter.items.get(position).path;
-                final Intent intent = new Intent(getContext(), ViewPhotoActivity.class);
-                intent.putExtra("path", path);
-                startActivity(intent);
-            }
-        });
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
